@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap');
+
+:root {
+    --gold: #f1c40f; 
+    --blue: #00d2ff;
+    --dark-blue: #0a1122;
+    --border: #f1c40f;
+}
+
+body { 
+    margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; color: white;
+    background-color: #000;
+}
+
+/* IMAGE DE FOND GALAXY */
+.selector-overlay, #main-interface {
+    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                url('https://wallpaperaccess.com/full/2044383.jpg') no-repeat center center fixed;
+    background-size: cover;
+}
+
+#main-interface { position: relative; display: block; overflow-y: auto; height: 100vh; }
+
+/* LE PANNEAU CENTRAL */
+.selector-card {
+    background: rgba(10, 17, 34, 0.95);
+    padding: 40px; border-radius: 15px; border: 2px solid var(--gold);
+    width: 380px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.8);
+}
+
+.gradient-text { font-family: 'Orbitron'; color: white; font-size: 2rem; margin: 0; letter-spacing: 2px; }
+.sub-logo { letter-spacing: 4px; font-size: 0.7rem; color: #bdc3c7; display: block; margin-bottom: 25px; }
+
+/* BOUTON JAUNE BISEAUTÉ */
+.btn-create {
+    font-family: 'Orbitron'; background: var(--gold); color: black; border: none; padding: 15px;
+    font-weight: 900; width: 100%; cursor: pointer; clip-path: polygon(8% 0%, 100% 0%, 92% 100%, 0% 100%);
+    margin-top: 10px; transition: 0.3s;
+}
+
+/* ÉLÉMENTS FORMULAIRE */
+input, .modern-select {
+    width: 100%; padding: 12px; margin-bottom: 12px; background: #05080f;
+    border: 1px solid #1c263b; color: white; border-radius: 4px; box-sizing: border-box;
+}
+.modern-select { color: var(--gold); font-weight: bold; cursor: pointer; }
+
+/* LISTE DES TOURNOIS */
+.tourney-list { margin-top: 20px; }
+.team-row {
+    background: rgba(0, 0, 0, 0.7); padding: 12px; border-radius: 8px; margin-bottom: 10px;
+    display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--gold);
+}
+
+/* BOUTONS INTERFACE */
+.btn-nav { font-family: 'Orbitron'; background: rgba(0, 210, 255, 0.1); color: var(--blue); border: 2px solid var(--blue); padding: 8px 20px; cursor: pointer; }
+.btn-submit { font-family: 'Orbitron'; background: transparent; color: var(--blue); border: 2px solid var(--blue); padding: 15px; width: 100%; font-weight: 900; cursor: pointer; }
+.btn-generate {
+    font-family: 'Orbitron'; background: linear-gradient(45deg, #ff4655, #ff8a00); color: white; border: none;
+    padding: 20px 40px; font-size: 1rem; font-weight: 900; cursor: pointer; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
+    display: block; margin: 30px auto;
+}
+
+/* FOOTER */
+.footer { text-align: center; padding: 40px; background: rgba(0,0,0,0.8); border-top: 1px solid #1e293b; }
+.link-elise { color: var(--gold); text-decoration: none; font-weight: bold; }
+.btn-admin-small { background: none; border: none; color: #444; cursor: pointer; margin-top: 20px; font-size: 0.7rem; }

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FREE FIRE TOURNAMENT MADAGASCAR</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="tournament-selector" class="selector-overlay">
+        <div class="selector-card">
+            <h1 class="gradient-text">FREE FIRE TOURNAMENT</h1>
+            <span class="sub-logo">MADAGASCAR EDITION</span>
+            
+            <div class="setup-box">
+                <input type="text" id="newTourneyName" placeholder="NOM DU TOURNOI">
+                <input type="password" id="newTourneyPass" placeholder="MOT DE PASSE">
+                <button onclick="createNewTournament()" class="btn-create">CRÉER LE TOURNOI</button>
+            </div>
+
+            <div id="tournamentsList" class="tourney-list"></div>
+            <button onclick="unlockGlobalAdmin()" class="btn-admin-small">⚙ Système pour admin</button>
+        </div>
+    </div>
+
+    <div id="main-interface" style="display:none;">
+        <header class="hero-header">
+            <button onclick="exitTournament()" class="btn-nav">⬅ MENU</button>
+            <h1 id="activeTournamentTitle">TOURNOI ACTIF</h1>
+        </header>
+
+        <div class="main-grid">
+            <section class="panel glass">
+                <h2 class="text-gold">📥 INSCRIPTION D'EQUIPE</h2>
+                <form id="proTournamentForm">
+                    <input type="text" id="teamName" placeholder="NOM DE L'ÉQUIPE" required>
+                    
+                    <label style="color:var(--gold); font-size: 0.8rem; font-weight: bold; display: block; margin-bottom: 5px;">FORMAT DE JEU :</label>
+                    <select id="gameMode" onchange="setupRegForm()" class="modern-select">
+                        <option value="1">MODE 1v1</option>
+                        <option value="2">MODE 2v2</option>
+                        <option value="4" selected>MODE 4v4</option>
+                        <option value="6">MODE 6v6</option>
+                    </select>
+
+                    <input type="url" id="facebook" placeholder="LIEN FACEBOOK DU CHEF" required>
+                    <div id="membersContainer"></div>
+                    <button type="submit" class="btn-submit">VALIDER L'INSCRIPTION</button>
+                </form>
+            </section>
+
+            <section class="panel glass">
+                <h2 class="text-blue">⚔️ ÉQUIPES EN LICE</h2>
+                <div id="teamsContainer"></div>
+            </section>
+        </div>
+
+        <div class="bracket-action-zone">
+            <button onclick="generateBracket()" class="btn-generate">🔥 GÉNÉRER L'ARBRE DE COMBAT</button>
+            <section id="bracket-section" class="bracket-display-area" style="display:none;">
+                <h2 class="bracket-title">🏆 TABLEAU FINAL</h2>
+                <div id="bracket-display" class="bracket-flex"></div>
+            </section>
+        </div>
+
+        <footer class="footer">
+            <p>Développé par <a href="https://web.facebook.com/elysern.2025?locale=fr_FR" target="_blank" class="link-elise">NAMBININTSOA SAROBIDINIAINA ELISE</a> - 2026</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
