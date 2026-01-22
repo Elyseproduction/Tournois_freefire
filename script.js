@@ -38,7 +38,7 @@ function showModal(title, desc, callback) {
     document.getElementById('modal-desc').innerText = desc;
     modal.style.display = "flex";
     input.value = "";
-    input.classList.remove('error-shake'); // Reset animation
+    input.classList.remove('error-shake');
     setTimeout(() => { input.focus(); }, 200);
     confirmBtn.onclick = () => { callback(input.value); };
 }
@@ -54,9 +54,8 @@ function enterTourney(id, correctPass) {
             document.getElementById('main-interface').style.display = 'block';
             loadTournament(id);
             syncGeneratorCooldown();
-            syncRoomDetails();
+            syncRoomDetails(); // Active l'écouteur temps réel
         } else {
-            // AMÉLIORATION NOTIFICATION ERREUR
             input.classList.add('error-shake');
             notify("MOT DE PASSE INCORRECT", "error");
             setTimeout(() => input.classList.remove('error-shake'), 400);
@@ -154,12 +153,16 @@ function setupForm(nb) {
     }
 }
 
+// CORRECTION : Écouteur global pour la Room
 function syncRoomDetails() {
     db.ref(`tournaments/${currentTournamentId}/room`).on('value', (snap) => {
         const data = snap.val();
         if(data) {
             document.getElementById('roomID').value = data.id || "";
             document.getElementById('roomPass').value = data.pass || "";
+        } else {
+            document.getElementById('roomID').value = "";
+            document.getElementById('roomPass').value = "";
         }
     });
 }
@@ -167,7 +170,8 @@ function syncRoomDetails() {
 function updateRoomInfo() {
     const id = document.getElementById('roomID').value;
     const pass = document.getElementById('roomPass').value;
-    db.ref(`tournaments/${currentTournamentId}/room`).set({ id, pass });
+    db.ref(`tournaments/${currentTournamentId}/room`).set({ id, pass })
+    .then(() => notify("ROOM MISE À JOUR"));
 }
 
 function deleteTourney(id) { if(confirm("Supprimer ce tournoi ?")) db.ref(`tournaments/${id}`).remove(); }
