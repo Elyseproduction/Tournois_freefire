@@ -27,11 +27,10 @@ body, html {
 .btn-contact { display: inline-block; text-decoration: none; color: #f1c40f; border: 1px solid #f1c40f; padding: 8px 15px; font-size: 0.7rem; border-radius: 5px; font-family: 'Orbitron'; }
 .btn-system { background: transparent; border: none; color: rgba(255, 255, 255, 0.2); cursor: pointer; font-size: 0.6rem; margin-top: 10px; }
 
-/* MODIFICATION ICI : z-index augmenté pour passer devant tout le reste */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 99999; backdrop-filter: blur(8px); }
 .modal-card { background: #0a1122; border: 2px solid #f1c40f; padding: 25px; border-radius: 15px; width: 90%; max-width: 320px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
 
-input, select { width: 100%; padding: 12px; margin-bottom: 8px; background: rgba(5, 8, 15, 0.8); border: 1px solid #1c263b; color: white; border-radius: 4px; font-size: 16px; /* 16px évite le zoom auto sur mobile */ }
+input, select { width: 100%; padding: 12px; margin-bottom: 8px; background: rgba(5, 8, 15, 0.8); border: 1px solid #1c263b; color: white; border-radius: 4px; font-size: 16px; }
 .tourney-list { max-height: 160px; overflow-y: auto; margin: 10px 0; padding: 5px; }
 .team-row { display: flex; justify-content: space-between; align-items: center; background: rgba(28, 38, 59, 0.6); margin-bottom: 5px; padding: 10px; border-radius: 6px; border-left: 3px solid #f1c40f; }
 
@@ -40,5 +39,9 @@ input, select { width: 100%; padding: 12px; margin-bottom: 8px; background: rgba
 .panel { background: rgba(10, 17, 34, 0.85); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
 
 .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 100000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-.toast { background: rgba(10, 17, 34, 0.95); color: white; padding: 12px 25px; border-radius: 5px; border-left: 4px solid #f1c40f; font-family: 'Orbitron'; font-size: 0.7rem; animation: slideDown 0.4s ease-out; }
+.toast { background: rgba(10, 17, 34, 0.95); color: white; padding: 12px 25px; border-radius: 5px; border-left: 4px solid #f1c40f; font-family: 'Orbitron'; font-size: 0.75rem; text-transform: uppercase; animation: slideDown 0.4s ease-out forwards; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+.toast.error { border-left-color: #ff4d4d; }
+.toast.fade-out { animation: fadeOut 0.4s ease-in forwards; }
+
 @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }

@@ -50,7 +50,7 @@ function enterTourney(id, correctPass) {
             document.getElementById('tournament-selector').style.display = 'none';
             document.getElementById('main-interface').style.display = 'block';
             loadTournament(id);
-            checkGeneratorCooldown();
+            syncGeneratorCooldown(); // Nouvelle fonction de synchronisation
         } else alert("Erreur.");
     });
 }
@@ -59,7 +59,7 @@ function unlockGlobalAdmin() {
     showModal("ADMIN", "Code système :", (c) => {
         if(c === "120606") {
             isAdminMaster = true;
-            alert("Admin Activé");
+            notify("ADMIN ACTIVÉ");
             filterTournaments(); 
         }
     });
@@ -76,9 +76,9 @@ function renderTeams(teams) {
             <div class="team-block" style="margin-bottom: 8px;">
                 <div onclick="toggleMembers('${listId}')" class="team-row" style="cursor:pointer; display:flex; justify-content:space-between;">
                     <strong>${t.name}</strong>
-                    <span id="icon-${listId}">▼</span>
+                    <span>▼</span>
                 </div>
-                <div id="${listId}" class="members-tree" style="display:none; padding:10px; background:rgba(0,0,0,0.2);">
+                <div id="${listId}" style="display:none; padding:10px; background:rgba(0,0,0,0.2);">
                     <ul style="list-style:none; padding:0; font-size:0.8rem;">
                         ${t.members.map(m => `<li>👤 ${m}</li>`).join('')}
                     </ul>
@@ -147,21 +147,33 @@ document.getElementById('proTournamentForm').addEventListener('submit', function
     const m = Array.from(document.querySelectorAll('.m-id')).map(i => i.value);
     db.ref(`tournaments/${currentTournamentId}/teams`).push({ 
         name: document.getElementById('teamName').value, fb: document.getElementById('facebook').value, members: m 
-    }).then(() => { alert("Inscrit !"); this.reset(); });
+    }).then(() => { notify("ÉQUIPE INSCRITE !"); this.reset(); });
 });
 
-function checkGeneratorCooldown() {
+// --- SYNCHRONISATION TEMPS RÉEL DU BOUTON ---
+function syncGeneratorCooldown() {
+    db.ref(`tournaments/${currentTournamentId}/lastBracketsGen`).on('value', (snap) => {
+        const lastClick = snap.val();
+        updateButtonUI(lastClick);
+    });
+}
+
+function updateButtonUI(lastClick) {
     const btn = document.getElementById('btnGenerator');
     if(!btn) return;
-    const lastClick = localStorage.getItem('lastBracketsGen_' + currentTournamentId);
+    
     const now = Date.now();
     const oneHour = 3600000;
+
     if (lastClick && (now - lastClick < oneHour)) {
         btn.disabled = true;
         btn.style.opacity = "0.5";
-        const mins = Math.ceil((oneHour - (now - lastClick)) / 60000);
+        const remaining = oneHour - (now - lastClick);
+        const mins = Math.ceil(remaining / 60000);
         btn.innerText = `BLOQUÉ (${mins} min)`;
-        setTimeout(checkGeneratorCooldown, 60000);
+        
+        // Relancer la mise à jour auto locale pour le décompte
+        setTimeout(() => updateButtonUI(lastClick), 30000); 
     } else {
         btn.disabled = false;
         btn.style.opacity = "1";
@@ -172,21 +184,25 @@ function checkGeneratorCooldown() {
 function generateRandomBrackets() {
     const container = document.getElementById('teamsContainer');
     const teams = Array.from(container.querySelectorAll('.team-block'));
-    if (teams.length < 2) { notify("Besoin d'au moins 2 équipes !", "error"); return; }
-    localStorage.setItem('lastBracketsGen_' + currentTournamentId, Date.now());
-    checkGeneratorCooldown();
+    if (teams.length < 2) { notify("BESOIN D'AU MOINS 2 ÉQUIPES !", "error"); return; }
+
+    // Enregistrement sur Firebase (synchronisé pour tous)
+    db.ref(`tournaments/${currentTournamentId}/lastBracketsGen`).set(firebase.database.ServerValue.TIMESTAMP);
+
+    // Mélange Aléatoire
     for (let i = teams.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [teams[i], teams[j]] = [teams[j], teams[i]];
     }
+
     container.innerHTML = `<h3 style="color:#00d2ff; font-family:'Orbitron'; font-size:0.7rem; text-align:center; margin-bottom:20px; text-transform:uppercase;">— Tableau des Matchs —</h3>`;
     const wrapper = document.createElement('div');
     wrapper.style.cssText = "display: flex; flex-direction: column; gap: 15px; align-items: center; width: 100%;";
+
     for (let i = 0; i < teams.length; i += 2) {
         const duelBox = document.createElement('div');
         duelBox.style.cssText = "width: 100%; max-width: 320px; background: rgba(255,255,255,0.03); border: 1px solid rgba(0,210,255,0.2); border-radius: 10px; padding: 10px;";
-        const teamA = teams[i];
-        const teamB = teams[i+1];
+        const teamA = teams[i]; const teamB = teams[i+1];
         if(teamA) teamA.style.margin = "0";
         if(teamB) teamB.style.margin = "0";
         duelBox.appendChild(teamA);
