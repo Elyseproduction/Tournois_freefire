@@ -60,12 +60,13 @@
                 <input type="text" id="searchInput" oninput="filterTournaments()" placeholder="🔍 Chercher un tournoi...">
             </div>
             <div id="tournamentsList" class="tourney-list"></div>
+            
             <div class="footer-controls">
                 <div class="contact-box">
-                    <p>Besoin d'aide ?</p>
+                    <p style="font-size: 0.8rem; margin-bottom: 8px;">Besoin d'aide ?</p>
                     <a href="https://web.facebook.com/elysern.2025?locale=fr_FR" target="_blank" class="btn-contact">💬 CONTACTER ADMIN</a>
                 </div>
-                <div class="system-separator"></div>
+                <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 15px 0;"></div>
                 <button onclick="unlockGlobalAdmin()" class="btn-system">⚙ SYSTÈME PARAMÈTRES</button>
             </div>
         </div>
@@ -86,7 +87,15 @@
                     <div id="membersContainer"></div>
                     <button type="submit" class="btn-create">S'INSCRIRE</button>
                 </form>
+
+                <div style="margin-top: 25px; padding: 15px; background: rgba(241, 196, 15, 0.05); border: 1px dashed #f1c40f; border-radius: 10px;">
+                    <h3 style="color:#f1c40f; font-family:'Orbitron'; font-size:0.7rem; text-align:center; margin-top:0;">⚔️ INFOS SALLE (ROOM)</h3>
+                    <input type="text" id="roomID" placeholder="UID DE LA SALLE" oninput="updateRoomInfo()">
+                    <input type="text" id="roomPass" placeholder="MOT DE PASSE SALLE" oninput="updateRoomInfo()">
+                    <p style="font-size: 0.6rem; color: #888; text-align: center; margin: 5px 0 0;">Ces infos sont visibles par tous les joueurs.</p>
+                </div>
             </section>
+            
             <section class="panel">
                 <h2 style="color:#00d2ff; font-size: 1rem;">⚔️ ÉQUIPES</h2>
                 <button id="btnGenerator" onclick="generateRandomBrackets()" class="btn-create" style="margin-bottom: 20px; background: #00d2ff; color: black; font-size: 0.7rem;">GÉNÉRER L'ARBRE DE COMBAT</button>
@@ -101,8 +110,8 @@
             <p id="modal-desc" style="font-size:0.8rem; margin-bottom:15px;"></p>
             <input type="password" id="modal-input" placeholder="ENTRER CODE">
             <div style="display:flex; gap:10px; margin-top: 15px;">
-                <button onclick="closeModal()" class="btn-modal-cancel" style="flex:1; padding:10px; background:#333; color:white; border:none; cursor:pointer;">ANNULER</button>
-                <button id="modal-confirm" class="btn-modal-ok" style="flex:1; padding:10px; background:#f1c40f; color:black; border:none; cursor:pointer; font-weight:bold;">OK</button>
+                <button onclick="closeModal()" class="btn-modal-cancel" style="flex:1; padding:10px; background:#333; color:white; border:none;">ANNULER</button>
+                <button id="modal-confirm" class="btn-modal-ok" style="flex:1; padding:10px; background:#f1c40f; color:black; border:none; font-weight:bold;">OK</button>
             </div>
         </div>
     </div>
