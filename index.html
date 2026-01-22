@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>FREE FIRE TOURNAMENT MADAGASCAR</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -11,9 +11,7 @@
 <body>
 
     <div class="menu-toggle" onclick="toggleSideMenu()">
-        <span></span>
-        <span></span>
-        <span></span>
+        <span></span><span></span><span></span>
     </div>
 
     <div id="side-menu" class="side-menu">
@@ -25,12 +23,12 @@
             </div>
             
             <div style="margin-top: 20px; font-size: 0.85rem; line-height: 1.4; color: #bbb; font-style: italic; text-align: center;">
-                <p>"Mastering the battlefield requires more than just speed; it demands strategy, precision, and an unbreakable spirit. Rise to the top and claim your Booyah!"</p>
+                <p>"Mastering the battlefield requires more than just speed; it demands strategy, precision, and an unbreakable spirit."</p>
                 <p style="margin-top: 15px; font-size: 0.7rem; color: #f1c40f; font-family: 'Orbitron';">BY NAMBININTSOA SAROBIDINIAINA ELISE</p>
                 
                 <div style="display: flex; flex-direction: column; align-items: center; margin-top: 15px; gap: 10px;">
                     <img src="profil.jpg" class="profile-img-circle" alt="Admin">
-                    <a href="mailto:votre-email@gmail.com" style="color: #f1c40f; text-decoration: none; font-size: 0.8rem;">📧 nambintsoas36@gmail.com</a>
+                    <a href="mailto:nambintsoas36@gmail.com" style="color: #f1c40f; text-decoration: none; font-size: 0.8rem;">📧 nambintsoas36@gmail.com</a>
                 </div>
             </div>
         </div>
@@ -38,10 +36,7 @@
 
     <div id="tournament-selector" class="selector-overlay">
         <div class="selector-card">
-            <a href="https://t.me/+zExC1Pu0khNmZGFk" target="_blank" 
-               style="display: inline-block; text-decoration: none; color: #f1c40f; border: 1px solid #f1c40f; padding: 5px 15px; border-radius: 5px; font-family: 'Orbitron'; font-size: 0.7rem; margin-bottom: 15px;">
-                📖 TUTORIEL
-            </a>
+            <a href="https://t.me/+zExC1Pu0khNmZGFk" target="_blank" style="display: inline-block; text-decoration: none; color: #f1c40f; border: 1px solid #f1c40f; padding: 5px 15px; border-radius: 5px; font-family: 'Orbitron'; font-size: 0.7rem; margin-bottom: 15px;">📖 TUTORIEL</a>
 
             <h1 class="gradient-text">FREE FIRE TOURNAMENT</h1>
             <span class="sub-logo">MADAGASCAR EDITION 2026</span>
@@ -49,6 +44,7 @@
             <div class="setup-box" style="margin-top: 15px;">
                 <input type="text" id="newTourneyName" placeholder="NOM DU TOURNOI">
                 <input type="password" id="newTourneyPass" placeholder="MOT DE PASSE">
+                
                 <div style="display: flex; gap: 5px;">
                     <select id="creationMode">
                         <option value="1">MODE 1v1</option>
@@ -65,7 +61,7 @@
                 <button onclick="createNewTournament()" class="btn-create">CRÉER LE TOURNOI</button>
             </div>
 
-            <div class="search-box">
+            <div class="search-box" style="margin-top: 15px;">
                 <input type="text" id="searchInput" oninput="filterTournaments()" placeholder="🔍 Chercher un tournoi...">
             </div>
             <div id="tournamentsList" class="tourney-list"></div>
@@ -82,31 +78,27 @@
     </div>
 
     <div id="main-interface" style="display:none;">
-        <header class="hero-header">
-            <button onclick="exitTournament()" class="btn-nav-back">⬅ MENU</button>
+        <header class="hero-header" style="display: flex; justify-content: space-between; align-items: center; padding: 15px;">
+            <button onclick="exitTournament()" class="btn-nav-back" style="background:none; border:1px solid #f1c40f; color:#f1c40f; padding:5px 10px; cursor:pointer;">⬅ MENU</button>
             <h1 id="activeTournamentTitle" class="gradient-text" style="font-size: 1rem;">TOURNOI</h1>
-            <div></div>
+            <div style="width: 60px;"></div>
         </header>
 
         <div class="main-grid">
             <section class="panel">
                 <h2 style="color:#f1c40f; font-size: 1rem;">📥 INSCRIPTION</h2>
                 <form id="proTournamentForm">
-                    <input type="text" id="teamName" placeholder="NOM ÉQUIPE" required>
-                    <input type="url" id="facebook" placeholder="LIEN FACEBOOK" required>
+                    <input type="text" id="teamName" placeholder="NOM D'ÉQUIPE (ou GUILDE)" required>
+                    <input type="url" id="facebook" placeholder="LIEN FACEBOOK DU CHEF D'EQUIPE (ou GUILDE)" required>
                     <div id="membersContainer"></div>
                     <button type="submit" class="btn-create">S'INSCRIRE</button>
                 </form>
             </section>
             <section class="panel">
                 <h2 style="color:#00d2ff; font-size: 1rem;">⚔️ ÉQUIPES</h2>
+                <button id="btnGenerator" onclick="generateRandomBrackets()" class="btn-create" style="margin-bottom: 20px; background: #00d2ff; color: black; font-size: 0.7rem;">GÉNÉRER L'ARBRE DE COMBAT</button>
                 <div id="teamsContainer"></div>
             </section>
-        </div>
-
-        <div id="bracket-section" class="bracket-area" style="display:none;">
-            <h2 style="color:#f1c40f; font-family:'Orbitron'; text-align: center;">⚔️ ARBRE DE COMBAT</h2>
-            <div id="bracket-container" class="bracket-flex"></div>
         </div>
         <div id="bottom-actions" style="text-align: center; padding: 20px;"></div>
     </div>
