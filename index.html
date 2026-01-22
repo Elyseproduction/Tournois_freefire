@@ -10,6 +10,31 @@
 </head>
 <body>
 
+    <div class="menu-toggle" onclick="toggleSideMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div id="side-menu" class="side-menu">
+        <div class="menu-content">
+            <h2 class="gradient-text" style="font-size: 1.2rem;">INFO ADMIN FF</h2>
+            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-top: 15px; border-left: 3px solid #f1c40f;">
+                <p><strong>PSEUDO:</strong> <br><span style="color:#f1c40f;">OɴʟʏㅤＫϟＮＧ㊝</span></p>
+                <p><strong>UID:</strong> <br><span style="color:#f1c40f;">3948197123</span></p>
+            </div>
+            
+            <div style="margin-top: 20px; font-size: 0.85rem; line-height: 1.4; color: #bbb; font-style: italic; text-align: center;">
+                <p>"Mastering the battlefield requires more than just speed; it demands strategy, precision, and an unbreakable spirit. Rise to the top and claim your Booyah!"</p>
+                <p style="margin-top: 15px; font-size: 0.7rem; color: #f1c40f; font-family: 'Orbitron';">BY NAMBININTSOA SAROBIDINIAINA ELISE</p>
+                
+                <div style="display: flex; justify-content: center; margin-top: 15px;">
+                    <img src="profil.jpg" class="profile-img-circle" alt="Admin">
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="tournament-selector" class="selector-overlay">
         <div class="selector-card">
             <a href="https://t.me/+zExC1Pu0khNmZGFk" target="_blank" 
@@ -23,7 +48,6 @@
             <div class="setup-box" style="margin-top: 15px;">
                 <input type="text" id="newTourneyName" placeholder="NOM DU TOURNOI">
                 <input type="password" id="newTourneyPass" placeholder="MOT DE PASSE">
-                
                 <div style="display: flex; gap: 5px;">
                     <select id="creationMode">
                         <option value="1">MODE 1v1</option>
@@ -37,22 +61,18 @@
                         <option value="720">1 Mois</option>
                     </select>
                 </div>
-
                 <button onclick="createNewTournament()" class="btn-create">CRÉER LE TOURNOI</button>
             </div>
 
             <div class="search-box">
                 <input type="text" id="searchInput" oninput="filterTournaments()" placeholder="🔍 Chercher un tournoi...">
             </div>
-
             <div id="tournamentsList" class="tourney-list"></div>
             
             <div class="footer-controls">
                 <div class="contact-box">
                     <p>Besoin d'aide ?</p>
-                    <a href="https://web.facebook.com/elysern.2025?locale=fr_FR" target="_blank" class="btn-contact">
-                        💬 CONTACTER ADMIN
-                    </a>
+                    <a href="https://web.facebook.com/elysern.2025?locale=fr_FR" target="_blank" class="btn-contact">💬 CONTACTER ADMIN</a>
                 </div>
                 <div class="system-separator"></div>
                 <button onclick="unlockGlobalAdmin()" class="btn-system">⚙ SYSTÈME PARAMÈTRES</button>
@@ -64,7 +84,7 @@
         <header class="hero-header">
             <button onclick="exitTournament()" class="btn-nav-back">⬅ MENU</button>
             <h1 id="activeTournamentTitle" class="gradient-text" style="font-size: 1rem;">TOURNOI</h1>
-            <div style="font-family:'Orbitron'; font-size: 0.8rem;"></div>
+            <div></div>
         </header>
 
         <div class="main-grid">
@@ -87,7 +107,6 @@
             <h2 style="color:#f1c40f; font-family:'Orbitron'; text-align: center;">⚔️ ARBRE DE COMBAT</h2>
             <div id="bracket-container" class="bracket-flex"></div>
         </div>
-
         <div id="bottom-actions" style="text-align: center; padding: 20px;"></div>
     </div>
 
