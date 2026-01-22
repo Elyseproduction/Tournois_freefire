@@ -38,29 +38,43 @@ function showModal(title, desc, callback) {
     document.getElementById('modal-desc').innerText = desc;
     modal.style.display = "flex";
     input.value = "";
+    input.classList.remove('error-shake'); // Reset animation
     setTimeout(() => { input.focus(); }, 200);
-    confirmBtn.onclick = () => { modal.style.display = "none"; callback(input.value); };
+    confirmBtn.onclick = () => { callback(input.value); };
 }
 function closeModal() { document.getElementById('custom-modal').style.display = "none"; }
 
 function enterTourney(id, correctPass) {
     showModal("SÉCURITÉ", "Entrez le mot de passe :", (pass) => {
+        const input = document.getElementById('modal-input');
         if(pass === correctPass) {
+            closeModal();
             currentTournamentId = id;
             document.getElementById('tournament-selector').style.display = 'none';
             document.getElementById('main-interface').style.display = 'block';
             loadTournament(id);
-            syncGeneratorCooldown(); // Nouvelle fonction de synchronisation
-        } else alert("Erreur.");
+            syncGeneratorCooldown();
+            syncRoomDetails();
+        } else {
+            // AMÉLIORATION NOTIFICATION ERREUR
+            input.classList.add('error-shake');
+            notify("MOT DE PASSE INCORRECT", "error");
+            setTimeout(() => input.classList.remove('error-shake'), 400);
+            input.value = "";
+            input.focus();
+        }
     });
 }
 
 function unlockGlobalAdmin() {
     showModal("ADMIN", "Code système :", (c) => {
         if(c === "120606") {
+            closeModal();
             isAdminMaster = true;
             notify("ADMIN ACTIVÉ");
             filterTournaments(); 
+        } else {
+            notify("CODE SYSTÈME ERREUR", "error");
         }
     });
 }
@@ -105,7 +119,7 @@ function filterTournaments() {
     Object.keys(allTournaments).forEach(id => {
         const t = allTournaments[id];
         if (t.name.toLowerCase().includes(query)) {
-            let del = isAdminMaster ? `<button onclick="deleteTourney('${id}')" style="background:red; border:none; color:white; padding:2px 5px;">X</button>` : "";
+            let del = isAdminMaster ? `<button onclick="deleteTourney('${id}')" style="background:red; border:none; color:white; padding:2px 5px; cursor:pointer;">X</button>` : "";
             list.innerHTML += `<div class="team-row"><div onclick="enterTourney('${id}', '${t.password}')" style="cursor:pointer; flex-grow:1;">🏆 ${t.name}</div>${del}</div>`;
         }
     });
@@ -115,8 +129,9 @@ function createNewTournament() {
     const n = document.getElementById('newTourneyName').value;
     const p = document.getElementById('newTourneyPass').value;
     const m = document.getElementById('creationMode').value;
-    if(!n || !p) return;
-    db.ref('tournaments').push({ name: n, password: p, nbPlayers: parseInt(m) });
+    if(!n || !p) { notify("NOM ET PASS REQUIS", "error"); return; }
+    db.ref('tournaments').push({ name: n, password: p, nbPlayers: parseInt(m) })
+    .then(() => notify("TOURNOI CRÉÉ !"));
 }
 
 function loadTournament(id) {
@@ -139,7 +154,23 @@ function setupForm(nb) {
     }
 }
 
-function deleteTourney(id) { if(confirm("Supprimer ?")) db.ref(`tournaments/${id}`).remove(); }
+function syncRoomDetails() {
+    db.ref(`tournaments/${currentTournamentId}/room`).on('value', (snap) => {
+        const data = snap.val();
+        if(data) {
+            document.getElementById('roomID').value = data.id || "";
+            document.getElementById('roomPass').value = data.pass || "";
+        }
+    });
+}
+
+function updateRoomInfo() {
+    const id = document.getElementById('roomID').value;
+    const pass = document.getElementById('roomPass').value;
+    db.ref(`tournaments/${currentTournamentId}/room`).set({ id, pass });
+}
+
+function deleteTourney(id) { if(confirm("Supprimer ce tournoi ?")) db.ref(`tournaments/${id}`).remove(); }
 function exitTournament() { location.reload(); }
 
 document.getElementById('proTournamentForm').addEventListener('submit', function(e) {
@@ -150,33 +181,25 @@ document.getElementById('proTournamentForm').addEventListener('submit', function
     }).then(() => { notify("ÉQUIPE INSCRITE !"); this.reset(); });
 });
 
-// --- SYNCHRONISATION TEMPS RÉEL DU BOUTON ---
 function syncGeneratorCooldown() {
     db.ref(`tournaments/${currentTournamentId}/lastBracketsGen`).on('value', (snap) => {
-        const lastClick = snap.val();
-        updateButtonUI(lastClick);
+        updateButtonUI(snap.val());
     });
 }
 
 function updateButtonUI(lastClick) {
     const btn = document.getElementById('btnGenerator');
     if(!btn) return;
-    
     const now = Date.now();
     const oneHour = 3600000;
-
     if (lastClick && (now - lastClick < oneHour)) {
         btn.disabled = true;
         btn.style.opacity = "0.5";
         const remaining = oneHour - (now - lastClick);
-        const mins = Math.ceil(remaining / 60000);
-        btn.innerText = `BLOQUÉ (${mins} min)`;
-        
-        // Relancer la mise à jour auto locale pour le décompte
+        btn.innerText = `BLOQUÉ (${Math.ceil(remaining / 60000)} min)`;
         setTimeout(() => updateButtonUI(lastClick), 30000); 
     } else {
-        btn.disabled = false;
-        btn.style.opacity = "1";
+        btn.disabled = false; btn.style.opacity = "1";
         btn.innerText = "GÉNÉRER L'ARBRE DE COMBAT";
     }
 }
@@ -185,20 +208,14 @@ function generateRandomBrackets() {
     const container = document.getElementById('teamsContainer');
     const teams = Array.from(container.querySelectorAll('.team-block'));
     if (teams.length < 2) { notify("BESOIN D'AU MOINS 2 ÉQUIPES !", "error"); return; }
-
-    // Enregistrement sur Firebase (synchronisé pour tous)
     db.ref(`tournaments/${currentTournamentId}/lastBracketsGen`).set(firebase.database.ServerValue.TIMESTAMP);
-
-    // Mélange Aléatoire
     for (let i = teams.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [teams[i], teams[j]] = [teams[j], teams[i]];
     }
-
     container.innerHTML = `<h3 style="color:#00d2ff; font-family:'Orbitron'; font-size:0.7rem; text-align:center; margin-bottom:20px; text-transform:uppercase;">— Tableau des Matchs —</h3>`;
     const wrapper = document.createElement('div');
     wrapper.style.cssText = "display: flex; flex-direction: column; gap: 15px; align-items: center; width: 100%;";
-
     for (let i = 0; i < teams.length; i += 2) {
         const duelBox = document.createElement('div');
         duelBox.style.cssText = "width: 100%; max-width: 320px; background: rgba(255,255,255,0.03); border: 1px solid rgba(0,210,255,0.2); border-radius: 10px; padding: 10px;";
