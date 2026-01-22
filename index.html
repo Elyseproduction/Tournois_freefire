@@ -88,8 +88,8 @@
             <section class="panel">
                 <h2 style="color:#f1c40f; font-size: 1rem;">📥 INSCRIPTION</h2>
                 <form id="proTournamentForm">
-                    <input type="text" id="teamName" placeholder="NOM D'ÉQUIPE (ou GUILDE)" required>
-                    <input type="url" id="facebook" placeholder="LIEN FACEBOOK DU CHEF D'EQUIPE (ou GUILDE)" required>
+                    <input type="text" id="teamName" placeholder="NOM ÉQUIPE" required>
+                    <input type="url" id="facebook" placeholder="LIEN FACEBOOK" required>
                     <div id="membersContainer"></div>
                     <button type="submit" class="btn-create">S'INSCRIRE</button>
                 </form>
@@ -100,17 +100,16 @@
                 <div id="teamsContainer"></div>
             </section>
         </div>
-        <div id="bottom-actions" style="text-align: center; padding: 20px;"></div>
     </div>
 
     <div id="custom-modal" class="modal-overlay" style="display:none;">
         <div class="modal-card">
-            <h3 id="modal-title">ACCÈS</h3>
-            <p id="modal-desc"></p>
-            <input type="password" id="modal-input" placeholder="********">
+            <h3 id="modal-title" style="color:#f1c40f; font-family:'Orbitron';">SÉCURITÉ</h3>
+            <p id="modal-desc" style="font-size:0.8rem; margin-bottom:15px;"></p>
+            <input type="password" id="modal-input" placeholder="ENTRER CODE">
             <div style="display:flex; gap:10px; margin-top: 15px;">
-                <button onclick="closeModal()" class="btn-modal-cancel">ANNULER</button>
-                <button id="modal-confirm" class="btn-modal-ok">OK</button>
+                <button onclick="closeModal()" class="btn-modal-cancel" style="flex:1; padding:10px; background:#333; color:white; border:none; cursor:pointer;">ANNULER</button>
+                <button id="modal-confirm" class="btn-modal-ok" style="flex:1; padding:10px; background:#f1c40f; color:black; border:none; cursor:pointer; font-weight:bold;">OK</button>
             </div>
         </div>
     </div>

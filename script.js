@@ -50,7 +50,7 @@ function enterTourney(id, correctPass) {
             document.getElementById('tournament-selector').style.display = 'none';
             document.getElementById('main-interface').style.display = 'block';
             loadTournament(id);
-            checkGeneratorCooldown(); // Vérifier le temps au chargement
+            checkGeneratorCooldown();
         } else alert("Erreur.");
     });
 }
@@ -134,7 +134,7 @@ function setupForm(nb) {
     if(container.innerHTML !== "") return;
     for(let i=1; i<=nb; i++) {
         const input = document.createElement('input');
-        input.className = "m-id"; input.placeholder = `ID ou Pseudo Joueur ${i}`; input.required = true;
+        input.className = "m-id"; input.placeholder = `ID Joueur ${i}`; input.required = true;
         container.appendChild(input);
     }
 }
@@ -150,70 +150,46 @@ document.getElementById('proTournamentForm').addEventListener('submit', function
     }).then(() => { alert("Inscrit !"); this.reset(); });
 });
 
-// --- GESTION DU TEMPS (1 HEURE) ---
 function checkGeneratorCooldown() {
     const btn = document.getElementById('btnGenerator');
     if(!btn) return;
-    
     const lastClick = localStorage.getItem('lastBracketsGen_' + currentTournamentId);
     const now = Date.now();
     const oneHour = 3600000;
-
     if (lastClick && (now - lastClick < oneHour)) {
         btn.disabled = true;
         btn.style.opacity = "0.5";
-        btn.style.cursor = "not-allowed";
-        
-        const remaining = oneHour - (now - lastClick);
-        const mins = Math.ceil(remaining / 60000);
+        const mins = Math.ceil((oneHour - (now - lastClick)) / 60000);
         btn.innerText = `BLOQUÉ (${mins} min)`;
-        
-        setTimeout(checkGeneratorCooldown, 60000); // Actualiser chaque minute
+        setTimeout(checkGeneratorCooldown, 60000);
     } else {
         btn.disabled = false;
         btn.style.opacity = "1";
-        btn.style.cursor = "pointer";
         btn.innerText = "GÉNÉRER L'ARBRE DE COMBAT";
     }
 }
 
 function generateRandomBrackets() {
-    const btn = document.getElementById('btnGenerator');
     const container = document.getElementById('teamsContainer');
     const teams = Array.from(container.querySelectorAll('.team-block'));
-    
-    if (teams.length < 2) {
-        notify("Besoin d'au moins 2 équipes !", "error");
-        return;
-    }
-
-    // Sauvegarder l'heure du clic
+    if (teams.length < 2) { notify("Besoin d'au moins 2 équipes !", "error"); return; }
     localStorage.setItem('lastBracketsGen_' + currentTournamentId, Date.now());
     checkGeneratorCooldown();
-
-    // Mélange Aléatoire
     for (let i = teams.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [teams[i], teams[j]] = [teams[j], teams[i]];
     }
-
-    container.innerHTML = `<h3 style="color:#00d2ff; font-family:'Orbitron'; font-size:0.7rem; text-align:center; margin-bottom:20px; text-transform:uppercase; letter-spacing:2px;">— Tableau des Matchs —</h3>`;
-    
+    container.innerHTML = `<h3 style="color:#00d2ff; font-family:'Orbitron'; font-size:0.7rem; text-align:center; margin-bottom:20px; text-transform:uppercase;">— Tableau des Matchs —</h3>`;
     const wrapper = document.createElement('div');
     wrapper.style.cssText = "display: flex; flex-direction: column; gap: 15px; align-items: center; width: 100%;";
-
     for (let i = 0; i < teams.length; i += 2) {
         const duelBox = document.createElement('div');
-        duelBox.style.cssText = "width: 100%; max-width: 320px; background: rgba(255,255,255,0.03); border: 1px solid rgba(0,210,255,0.2); border-radius: 10px; padding: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);";
-        
+        duelBox.style.cssText = "width: 100%; max-width: 320px; background: rgba(255,255,255,0.03); border: 1px solid rgba(0,210,255,0.2); border-radius: 10px; padding: 10px;";
         const teamA = teams[i];
         const teamB = teams[i+1];
-
         if(teamA) teamA.style.margin = "0";
         if(teamB) teamB.style.margin = "0";
-
         duelBox.appendChild(teamA);
-
         if (teamB) {
             const vsLabel = document.createElement('div');
             vsLabel.innerHTML = `<span style="background:#0a1122; padding: 0 10px; position: relative; z-index: 1;">VS</span>`;
@@ -226,11 +202,11 @@ function generateRandomBrackets() {
         } else {
             const byeLabel = document.createElement('div');
             byeLabel.innerHTML = "QUALIFIÉ D'OFFICE";
-            byeLabel.style.cssText = "text-align:center; color:#2ecc71; font-size:0.6rem; margin-top:8px; font-weight:bold; letter-spacing:1px;";
+            byeLabel.style.cssText = "text-align:center; color:#2ecc71; font-size:0.6rem; margin-top:8px; font-weight:bold;";
             duelBox.appendChild(byeLabel);
         }
         wrapper.appendChild(duelBox);
     }
     container.appendChild(wrapper);
-    notify("ARBRE DE COMBAT GÉNÉRÉ");
+    notify("ARBRE GÉNÉRÉ");
 }
