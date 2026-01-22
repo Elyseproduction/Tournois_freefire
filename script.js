@@ -11,7 +11,12 @@ let currentTournamentId = "";
 let isAdminMaster = false;
 let allTournaments = {};
 
-// MODALE POUR CODES ET MOTS DE PASSE
+// GESTION DU MENU
+function toggleSideMenu() {
+    document.getElementById('side-menu').classList.toggle('active');
+}
+
+// MODALE
 function showModal(title, desc, callback) {
     const modal = document.getElementById('custom-modal');
     const input = document.getElementById('modal-input');
@@ -44,7 +49,6 @@ function filterTournaments() {
     });
 }
 
-// CRÉATION AVEC MODE ET DURÉE
 function createNewTournament() {
     const n = document.getElementById('newTourneyName').value;
     const p = document.getElementById('newTourneyPass').value;
@@ -59,15 +63,11 @@ function createNewTournament() {
         nbPlayers: parseInt(m),
         expiresAt: Date.now() + (parseInt(d) * 3600000)
     });
-    
-    document.getElementById('newTourneyName').value = "";
-    document.getElementById('newTourneyPass').value = "";
     alert("Tournoi créé avec succès !");
 }
 
-// ACCÈS TOURNOI
 function enterTourney(id, correctPass) {
-    showModal("SÉCURITÉ", "Entrez le mot de passe du tournoi :", (pass) => {
+    showModal("SÉCURITÉ", "Entrez le mot de passe :", (pass) => {
         if(pass === correctPass) {
             currentTournamentId = id;
             document.getElementById('tournament-selector').style.display = 'none';
@@ -94,12 +94,8 @@ function loadTournament(id) {
     });
 }
 
-// GESTION ARBRE ET ÉQUIPES
 function confirmGen(p) { 
-    showModal("CONFIRMATION (mot de passe)", " Vérifier que toute l'équipe est là ", (v) => { 
-        if(v === p) generateBracket(); 
-        else alert("Code erroné.");
-    }); 
+    showModal("CONFIRMATION", "Lancer la génération ?", (v) => { if(v === p) generateBracket(); }); 
 }
 
 function generateBracket() {
@@ -122,9 +118,7 @@ function displayBracket(m) {
     c.innerHTML = m.map((match, i) => `
         <div class="match-card">
             <div style="font-size:0.7rem; color:#f1c40f;">MATCH ${i+1}</div>
-            <div style="margin:5px 0;">${match.t1}</div>
-            <div style="color:red; font-weight:bold; font-size:0.7rem;">VS</div>
-            <div>${match.t2}</div>
+            <div>${match.t1} VS ${match.t2}</div>
         </div>`).join('');
 }
 
@@ -147,9 +141,7 @@ function setupForm(nb) {
     }
 }
 
-// ADMIN ET UTILITAIRES
 function unlockGlobalAdmin() { showModal("ADMIN", "Code système :", (c) => { if(c === "120606") { isAdminMaster = true; filterTournaments(); } }); }
-function deleteTourney(id) { if(confirm("Supprimer ?")) db.ref(`tournaments/${id}`).remove(); }
 function exitTournament() { location.reload(); }
 
 document.getElementById('proTournamentForm').addEventListener('submit', function(e) {
