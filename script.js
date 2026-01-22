@@ -1,116 +1,165 @@
-let currentTournament = "";
+const firebaseConfig = {
+    apiKey: "AIzaSyARkyQzSnDV7IUKuncJfQpWMOK0-HZA6r4",
+    databaseURL: "https://ff-tournament-4e2fe-default-rtdb.firebaseio.com",
+    projectId: "ff-tournament-4e2fe",
+    appId: "1:6708829555:web:d0da2d3838a4a490ddf906"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+let currentTournamentId = "";
 let isAdminMaster = false;
-const DB_KEY = "FF_MADA_ELITE_V13";
+let allTournaments = {};
 
-window.onload = updateTournamentsList;
-
-function unlockGlobalAdmin() {
-    if(prompt("Code Système :") === "120606") {
-        isAdminMaster = true;
-        updateTournamentsList();
-    }
+// MODALE POUR CODES ET MOTS DE PASSE
+function showModal(title, desc, callback) {
+    const modal = document.getElementById('custom-modal');
+    const input = document.getElementById('modal-input');
+    const confirmBtn = document.getElementById('modal-confirm');
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-desc').innerText = desc;
+    modal.style.display = "flex";
+    input.value = "";
+    setTimeout(() => { input.focus(); }, 200);
+    confirmBtn.onclick = () => { modal.style.display = "none"; callback(input.value); };
 }
+function closeModal() { document.getElementById('custom-modal').style.display = "none"; }
 
-function createNewTournament() {
-    const name = document.getElementById('newTourneyName').value.trim();
-    const pass = document.getElementById('newTourneyPass').value;
-    if(!name || !pass) return alert("Champs vides !");
-    let db = JSON.parse(localStorage.getItem(DB_KEY)) || {};
-    db[name] = { password: pass, teams: [] };
-    localStorage.setItem(DB_KEY, JSON.stringify(db));
-    updateTournamentsList();
-}
-
-function updateTournamentsList() {
-    const container = document.getElementById('tournamentsList');
-    const db = JSON.parse(localStorage.getItem(DB_KEY)) || {};
-    container.innerHTML = "";
-    Object.keys(db).forEach(name => {
-        const div = document.createElement('div');
-        div.className = "team-row";
-        div.innerHTML = `<span onclick="enterTourney('${name}')" style="cursor:pointer; font-weight:bold;">🏆 ${name}</span>`;
-        if(isAdminMaster) div.innerHTML += `<button onclick="deleteTourney('${name}')" style="background:red; border:none; color:white; padding:5px; border-radius:4px; cursor:pointer;">✖</button>`;
-        container.appendChild(div);
-    });
-}
-
-function deleteTourney(name) {
-    if(confirm(`Supprimer ${name} ?`)) {
-        let db = JSON.parse(localStorage.getItem(DB_KEY));
-        delete db[name];
-        localStorage.setItem(DB_KEY, JSON.stringify(db));
-        updateTournamentsList();
-    }
-}
-
-function enterTourney(name) {
-    const db = JSON.parse(localStorage.getItem(DB_KEY));
-    if(prompt("Mot de passe :") === db[name].password) {
-        currentTournament = name;
-        document.getElementById('tournament-selector').style.display = 'none';
-        document.getElementById('main-interface').style.display = 'block';
-        document.getElementById('activeTournamentTitle').innerText = name;
-        setupRegForm();
-        renderTeams();
-    }
-}
-
-function setupRegForm() {
-    const container = document.getElementById('membersContainer');
-    const mode = document.getElementById('gameMode').value;
-    container.innerHTML = "";
-    for(let i=1; i<=mode; i++) {
-        container.innerHTML += `<input type="text" class="m-id" placeholder="Joueur ${i} ${i==1?'(Chef)':''}" required>`;
-    }
-}
-
-document.getElementById('proTournamentForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    let db = JSON.parse(localStorage.getItem(DB_KEY));
-    const members = Array.from(document.querySelectorAll('.m-id')).map(i => i.value);
-    db[currentTournament].teams.push({
-        name: document.getElementById('teamName').value,
-        mode: document.getElementById('gameMode').value + "v" + document.getElementById('gameMode').value,
-        fb: document.getElementById('facebook').value,
-        members: members
-    });
-    localStorage.setItem(DB_KEY, JSON.stringify(db));
-    this.reset();
-    setupRegForm();
-    renderTeams();
+// CHARGEMENT ET FILTRE
+db.ref('tournaments').on('value', (snap) => {
+    allTournaments = snap.val() || {};
+    filterTournaments();
 });
 
-function renderTeams() {
-    const container = document.getElementById('teamsContainer');
-    const db = JSON.parse(localStorage.getItem(DB_KEY));
-    const teams = db[currentTournament].teams;
-    container.innerHTML = "";
-    teams.forEach(t => {
-        container.innerHTML += `
-            <div class="team-row">
-                <div><strong>${t.name} <small style="color:var(--gold)">(${t.mode})</small></strong><br><small>Chef: ${t.members[0]}</small></div>
-                <a href="${t.fb}" target="_blank" style="background:#1877F2; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:0.7rem; font-weight:bold;">FB</a>
-            </div>`;
+function filterTournaments() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const list = document.getElementById('tournamentsList');
+    list.innerHTML = "";
+    Object.keys(allTournaments).forEach(id => {
+        const t = allTournaments[id];
+        if (t.name.toLowerCase().includes(query)) {
+            let del = isAdminMaster ? `<button onclick="deleteTourney('${id}')" style="background:red; color:white; border:none; padding:2px 5px; cursor:pointer;">X</button>` : "";
+            list.innerHTML += `<div class="team-row"><div onclick="enterTourney('${id}', '${t.password}')" style="cursor:pointer; flex-grow:1;">🏆 ${t.name} <span style="font-size:0.7rem; color:gray;">(${t.mode})</span></div>${del}</div>`;
+        }
     });
+}
+
+// CRÉATION AVEC MODE ET DURÉE
+function createNewTournament() {
+    const n = document.getElementById('newTourneyName').value;
+    const p = document.getElementById('newTourneyPass').value;
+    const m = document.getElementById('creationMode').value;
+    const d = document.getElementById('tournamentDuration').value;
+    if(!n || !p) return alert("Remplissez le nom et le mot de passe !");
+    
+    db.ref('tournaments').push({ 
+        name: n, 
+        password: p, 
+        mode: m+"v"+m, 
+        nbPlayers: parseInt(m),
+        expiresAt: Date.now() + (parseInt(d) * 3600000)
+    });
+    
+    document.getElementById('newTourneyName').value = "";
+    document.getElementById('newTourneyPass').value = "";
+    alert("Tournoi créé avec succès !");
+}
+
+// ACCÈS TOURNOI
+function enterTourney(id, correctPass) {
+    showModal("SÉCURITÉ", "Entrez le mot de passe du tournoi :", (pass) => {
+        if(pass === correctPass) {
+            currentTournamentId = id;
+            document.getElementById('tournament-selector').style.display = 'none';
+            document.getElementById('main-interface').style.display = 'block';
+            loadTournament(id);
+        } else { alert("Mot de passe incorrect."); }
+    });
+}
+
+function loadTournament(id) {
+    db.ref(`tournaments/${id}`).on('value', (snap) => {
+        const t = snap.val();
+        if(!t) return exitTournament();
+        document.getElementById('activeTournamentTitle').innerText = t.name;
+        setupForm(t.nbPlayers);
+        renderTeams(t.teams);
+        const actions = document.getElementById('bottom-actions');
+        if(!t.bracket) {
+            actions.innerHTML = `<button onclick="confirmGen('${t.password}')" class="btn-create" style="width:auto; padding:15px 30px;">⚡ GÉNÉRER L'ARBRE</button>`;
+        } else {
+            actions.innerHTML = `<p style="color:#f1c40f">L'ARBRE DE COMBAT EST DÉJÀ GÉNÉRÉ</p>`;
+            displayBracket(t.bracket);
+        }
+    });
+}
+
+// GESTION ARBRE ET ÉQUIPES
+function confirmGen(p) { 
+    showModal("CONFIRMATION (mot de passe)", " Vérifier que toute l'équipe est là ", (v) => { 
+        if(v === p) generateBracket(); 
+        else alert("Code erroné.");
+    }); 
 }
 
 function generateBracket() {
-    let db = JSON.parse(localStorage.getItem(DB_KEY));
-    let teams = [...db[currentTournament].teams];
-    if(teams.length < 2) return alert("Min. 2 équipes !");
-    teams.sort(() => Math.random() - 0.5);
-    const display = document.getElementById('bracket-display');
-    document.getElementById('bracket-section').style.display = "block";
-    display.innerHTML = "";
-    let html = `<div>`;
-    for(let i=0; i<teams.length; i+=2) {
-        html += `<div style="background:#0f172a; border:1px solid #1e293b; padding:15px; width:180px; margin-bottom:10px; border-radius:5px; text-align:center;"><b>${teams[i].name}</b><br>vs<br><b>${teams[i+1]?teams[i+1].name:'BYE'}</b></div>`;
-    }
-    html += `</div><div style="background:rgba(241, 196, 15, 0.2); border:2px solid var(--gold); padding:20px; align-self:center; border-radius:10px; text-align:center;">🏆 FINALE</div>`;
-    display.innerHTML = html;
+    db.ref(`tournaments/${currentTournamentId}/teams`).once('value', (snap) => {
+        const teams = snap.val();
+        if(!teams || Object.keys(teams).length < 2) return alert("Pas assez d'équipes.");
+        let list = Object.values(teams).sort(() => Math.random() - 0.5);
+        let m = [];
+        for(let i=0; i<list.length; i+=2) {
+            m.push({ t1: list[i].name, t2: list[i+1] ? list[i+1].name : "QUALIFIÉ D'OFFICE (BYE)" });
+        }
+        db.ref(`tournaments/${currentTournamentId}/bracket`).set(m);
+    });
 }
 
-function exitTournament() {
-    document.getElementById('main-interface').style.display = 'none';
-    document.getElementById('tournament-selector').style.display = 'flex';
+function displayBracket(m) {
+    const s = document.getElementById('bracket-section');
+    const c = document.getElementById('bracket-container');
+    s.style.display = "block";
+    c.innerHTML = m.map((match, i) => `
+        <div class="match-card">
+            <div style="font-size:0.7rem; color:#f1c40f;">MATCH ${i+1}</div>
+            <div style="margin:5px 0;">${match.t1}</div>
+            <div style="color:red; font-weight:bold; font-size:0.7rem;">VS</div>
+            <div>${match.t2}</div>
+        </div>`).join('');
 }
+
+function renderTeams(teams) {
+    const container = document.getElementById('teamsContainer');
+    container.innerHTML = "";
+    if(!teams) return;
+    Object.values(teams).forEach(t => {
+        container.innerHTML += `<div class="team-row" style="border-left:none; background:rgba(255,255,255,0.05);"><strong>${t.name}</strong></div>`;
+    });
+}
+
+function setupForm(nb) {
+    const container = document.getElementById('membersContainer');
+    if(container.innerHTML !== "") return;
+    for(let i=1; i<=nb; i++) {
+        const input = document.createElement('input');
+        input.className = "m-id"; input.placeholder = `ID Joueur ${i}`; input.required = true;
+        container.appendChild(input);
+    }
+}
+
+// ADMIN ET UTILITAIRES
+function unlockGlobalAdmin() { showModal("ADMIN", "Code système :", (c) => { if(c === "120606") { isAdminMaster = true; filterTournaments(); } }); }
+function deleteTourney(id) { if(confirm("Supprimer ?")) db.ref(`tournaments/${id}`).remove(); }
+function exitTournament() { location.reload(); }
+
+document.getElementById('proTournamentForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const m = Array.from(document.querySelectorAll('.m-id')).map(i => i.value);
+    db.ref(`tournaments/${currentTournamentId}/teams`).push({ 
+        name: document.getElementById('teamName').value, 
+        fb: document.getElementById('facebook').value, 
+        members: m 
+    });
+    alert("Équipe inscrite !");
+    this.reset();
+});
