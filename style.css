@@ -4,53 +4,41 @@
 
 body, html { 
     margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; color: white; min-height: 100vh;
-    background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), 
-                url('Freefire.jpg') no-repeat center center fixed;
-    background-size: cover;
-    overflow-x: hidden; /* Supprime la ligne jaune à droite */
-    width: 100%;
+    background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url('Freefire.jpg') no-repeat center center fixed;
+    background-size: cover; overflow-x: hidden; width: 100%;
 }
 
-/* BOUTON MENU */
-.menu-toggle {
-    position: fixed; top: 20px; right: 20px;
-    width: 30px; height: 22px; z-index: 1100; cursor: pointer;
-    display: flex; flex-direction: column; justify-content: space-between;
-}
-.menu-toggle span { display: block; height: 3px; width: 100%; background: #f1c40f; border-radius: 3px; transition: 0.3s; }
+.menu-toggle { position: fixed; top: 20px; right: 20px; width: 30px; height: 22px; z-index: 1100; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; }
+.menu-toggle span { display: block; height: 3px; width: 100%; background: #f1c40f; border-radius: 3px; }
 
-/* SIDE MENU OPTIMISÉ */
-.side-menu {
-    position: fixed; top: 0; 
-    right: -350px; /* Caché pour Android et Web */
-    width: 280px; height: 100%;
-    background: rgba(10, 17, 34, 0.98);
-    border-left: 2px solid #f1c40f;
-    z-index: 1050; transition: 0.4s ease-in-out;
-    padding: 80px 20px;
-}
+.side-menu { position: fixed; top: 0; right: -350px; width: 280px; height: 100%; background: rgba(10, 17, 34, 0.98); border-left: 2px solid #f1c40f; z-index: 1050; transition: 0.4s ease-in-out; padding: 80px 20px; }
 .side-menu.active { right: 0; }
+.profile-img-circle { width: 85px; height: 85px; border-radius: 50%; border: 2px solid #f1c40f; object-fit: cover; }
 
-.profile-img-circle {
-    width: 85px; height: 85px;
-    border-radius: 50%;
-    border: 2px solid #f1c40f;
-    object-fit: cover;
-    box-shadow: 0 0 15px rgba(241, 196, 15, 0.3);
-}
-
-/* RESTE DU STYLE ORIGINAL */
 .selector-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
 .selector-card { background: rgba(10, 17, 34, 0.98); padding: 25px 30px; border-radius: 20px; border: 2px solid #f1c40f; width: 100%; max-width: 420px; text-align: center; }
 .gradient-text { font-family: 'Orbitron'; color: #f1c40f; font-size: 1.8rem; margin: 0; }
 .sub-logo { font-size: 0.7rem; letter-spacing: 3px; color: #bdc3c7; }
-.tourney-list { max-height: 160px; overflow-y: auto; margin: 10px 0; padding: 5px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; }
-.team-row { display: flex; justify-content: space-between; align-items: center; background: rgba(28, 38, 59, 0.6); margin-bottom: 5px; padding: 10px; border-radius: 6px; border-left: 3px solid #f1c40f; font-size: 0.9rem; }
+
+.btn-create { background: #f1c40f; color: black; border: none; padding: 12px; font-weight: 900; width: 100%; cursor: pointer; font-family: 'Orbitron'; clip-path: polygon(5% 0%, 100% 0%, 95% 100%, 0% 100%); transition: 0.3s; }
+.btn-create:disabled { background: #444 !important; color: #888; }
+
+.contact-box { background: rgba(255, 255, 255, 0.03); padding: 12px; border-radius: 10px; margin-top: 15px; }
 .btn-contact { display: inline-block; text-decoration: none; color: #f1c40f; border: 1px solid #f1c40f; padding: 8px 15px; font-size: 0.7rem; border-radius: 5px; font-family: 'Orbitron'; }
-.btn-system { background: transparent; border: none; color: rgba(255, 255, 255, 0.3); cursor: pointer; font-size: 0.65rem; font-family: 'Orbitron'; }
-input, select { width: 100%; padding: 10px; margin-bottom: 8px; background: rgba(5, 8, 15, 0.8); border: 1px solid #1c263b; color: white; border-radius: 4px; font-size: 0.85rem; }
-.btn-create { background: #f1c40f; color: black; border: none; padding: 12px; font-weight: 900; width: 100%; cursor: pointer; font-family: 'Orbitron'; clip-path: polygon(5% 0%, 100% 0%, 95% 100%, 0% 100%); }
-.hero-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: rgba(10, 17, 34, 0.9); border-bottom: 1px solid #f1c40f; }
+.btn-system { background: transparent; border: none; color: rgba(255, 255, 255, 0.2); cursor: pointer; font-size: 0.6rem; margin-top: 10px; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 2000; backdrop-filter: blur(5px); }
+.modal-card { background: #0a1122; border: 2px solid #f1c40f; padding: 25px; border-radius: 15px; width: 300px; text-align: center; }
+
+input, select { width: 100%; padding: 10px; margin-bottom: 8px; background: rgba(5, 8, 15, 0.8); border: 1px solid #1c263b; color: white; border-radius: 4px; }
+.tourney-list { max-height: 160px; overflow-y: auto; margin: 10px 0; padding: 5px; }
+.team-row { display: flex; justify-content: space-between; align-items: center; background: rgba(28, 38, 59, 0.6); margin-bottom: 5px; padding: 10px; border-radius: 6px; border-left: 3px solid #f1c40f; }
+
 .main-grid { display: grid; grid-template-columns: 1fr; gap: 20px; padding: 20px; }
 @media (min-width: 768px) { .main-grid { grid-template-columns: 1fr 1fr; } }
 .panel { background: rgba(10, 17, 34, 0.85); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
+
+/* TOASTS */
+.toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+.toast { background: rgba(10, 17, 34, 0.95); color: white; padding: 12px 25px; border-radius: 5px; border-left: 4px solid #f1c40f; font-family: 'Orbitron'; font-size: 0.7rem; animation: slideDown 0.4s ease-out; }
+@keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
