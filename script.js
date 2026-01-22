@@ -54,7 +54,7 @@ function enterTourney(id, correctPass) {
             document.getElementById('main-interface').style.display = 'block';
             loadTournament(id);
             syncGeneratorCooldown();
-            syncRoomDetails(); // Active l'écouteur temps réel
+            syncRoomDetails();
         } else {
             input.classList.add('error-shake');
             notify("MOT DE PASSE INCORRECT", "error");
@@ -125,12 +125,33 @@ function filterTournaments() {
 }
 
 function createNewTournament() {
-    const n = document.getElementById('newTourneyName').value;
+    const n = document.getElementById('newTourneyName').value.trim();
     const p = document.getElementById('newTourneyPass').value;
+    const ap = document.getElementById('newTourneyAdminPass').value;
     const m = document.getElementById('creationMode').value;
-    if(!n || !p) { notify("NOM ET PASS REQUIS", "error"); return; }
-    db.ref('tournaments').push({ name: n, password: p, nbPlayers: parseInt(m) })
-    .then(() => notify("TOURNOI CRÉÉ !"));
+    
+    if(!n || !p || !ap) { 
+        notify("TOUS LES CHAMPS SONT REQUIS", "error"); 
+        return; 
+    }
+
+    const nameExists = Object.values(allTournaments).some(t => t.name.toLowerCase() === n.toLowerCase());
+    if (nameExists) {
+        notify("NOM DÉJÀ UTILISÉ", "error");
+        return;
+    }
+    
+    db.ref('tournaments').push({ 
+        name: n, 
+        password: p, 
+        adminPassword: ap, 
+        nbPlayers: parseInt(m) 
+    }).then(() => {
+        notify("TOURNOI CRÉÉ !");
+        document.getElementById('newTourneyName').value = "";
+        document.getElementById('newTourneyPass').value = "";
+        document.getElementById('newTourneyAdminPass').value = "";
+    });
 }
 
 function loadTournament(id) {
@@ -153,25 +174,31 @@ function setupForm(nb) {
     }
 }
 
-// CORRECTION : Écouteur global pour la Room
 function syncRoomDetails() {
     db.ref(`tournaments/${currentTournamentId}/room`).on('value', (snap) => {
         const data = snap.val();
         if(data) {
             document.getElementById('roomID').value = data.id || "";
             document.getElementById('roomPass').value = data.pass || "";
-        } else {
-            document.getElementById('roomID').value = "";
-            document.getElementById('roomPass').value = "";
         }
     });
 }
 
 function updateRoomInfo() {
-    const id = document.getElementById('roomID').value;
-    const pass = document.getElementById('roomPass').value;
-    db.ref(`tournaments/${currentTournamentId}/room`).set({ id, pass })
-    .then(() => notify("ROOM MISE À JOUR"));
+    db.ref(`tournaments/${currentTournamentId}/adminPassword`).once('value', (snap) => {
+        const correctAdminPass = snap.val();
+        showModal("ADMIN TOURNOI", "Entrez le mot de passe PRIVÉ :", (pass) => {
+            if(pass === correctAdminPass) {
+                closeModal();
+                const id = document.getElementById('roomID').value;
+                const rpass = document.getElementById('roomPass').value;
+                db.ref(`tournaments/${currentTournamentId}/room`).set({ id, pass: rpass })
+                .then(() => notify("ROOM MISE À JOUR"));
+            } else {
+                notify("MOT DE PASSE PRIVÉ INCORRECT", "error");
+            }
+        });
+    });
 }
 
 function deleteTourney(id) { if(confirm("Supprimer ce tournoi ?")) db.ref(`tournaments/${id}`).remove(); }
@@ -197,8 +224,7 @@ function updateButtonUI(lastClick) {
     const now = Date.now();
     const oneHour = 3600000;
     if (lastClick && (now - lastClick < oneHour)) {
-        btn.disabled = true;
-        btn.style.opacity = "0.5";
+        btn.disabled = true; btn.style.opacity = "0.5";
         const remaining = oneHour - (now - lastClick);
         btn.innerText = `BLOQUÉ (${Math.ceil(remaining / 60000)} min)`;
         setTimeout(() => updateButtonUI(lastClick), 30000); 
@@ -209,10 +235,26 @@ function updateButtonUI(lastClick) {
 }
 
 function generateRandomBrackets() {
+    db.ref(`tournaments/${currentTournamentId}/adminPassword`).once('value', (snap) => {
+        const correctAdminPass = snap.val();
+        showModal("ADMIN TOURNOI", "Entrez le mot de passe PRIVÉ :", (pass) => {
+            if(pass === correctAdminPass) {
+                closeModal();
+                const container = document.getElementById('teamsContainer');
+                const teams = Array.from(container.querySelectorAll('.team-block'));
+                if (teams.length < 2) { notify("BESOIN D'AU MOINS 2 ÉQUIPES !", "error"); return; }
+                db.ref(`tournaments/${currentTournamentId}/lastBracketsGen`).set(firebase.database.ServerValue.TIMESTAMP);
+                // ... reste du code de génération ...
+                executeGeneration(teams);
+            } else {
+                notify("MOT DE PASSE PRIVÉ INCORRECT", "error");
+            }
+        });
+    });
+}
+
+function executeGeneration(teams) {
     const container = document.getElementById('teamsContainer');
-    const teams = Array.from(container.querySelectorAll('.team-block'));
-    if (teams.length < 2) { notify("BESOIN D'AU MOINS 2 ÉQUIPES !", "error"); return; }
-    db.ref(`tournaments/${currentTournamentId}/lastBracketsGen`).set(firebase.database.ServerValue.TIMESTAMP);
     for (let i = teams.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [teams[i], teams[j]] = [teams[j], teams[i]];
