@@ -88,11 +88,12 @@
                     <button type="submit" class="btn-create">S'INSCRIRE</button>
                 </form>
 
-                <div style="margin-top: 25px; padding: 15px; background: rgba(241, 196, 15, 0.05); border: 1px dashed #f1c40f; border-radius: 10px;">
-                    <h3 style="color:#f1c40f; font-family:'Orbitron'; font-size:0.7rem; text-align:center; margin-top:0;">⚔️ INFOS SALLE (ROOM)</h3>
-                    <input type="text" id="roomID" placeholder="UID DE LA SALLE" oninput="updateRoomInfo()">
-                    <input type="text" id="roomPass" placeholder="MOT DE PASSE SALLE" oninput="updateRoomInfo()">
-                    <p style="font-size: 0.6rem; color: #888; text-align: center; margin: 5px 0 0;">Ces infos sont visibles par tous les joueurs.</p>
+                <div style="margin-top: 25px; padding: 15px; background: rgba(0, 210, 255, 0.05); border: 1px solid #00d2ff; border-radius: 10px;">
+                    <h3 style="color:#00d2ff; font-family:'Orbitron'; font-size:0.7rem; text-align:center; margin-top:0;">⚔️ INFOS SALLE (ROOM)</h3>
+                    <input type="text" id="roomID" placeholder="UID DE LA SALLE">
+                    <input type="text" id="roomPass" placeholder="MOT DE PASSE SALLE">
+                    <button onclick="updateRoomInfo()" class="btn-create" style="background:#00d2ff; font-size:0.6rem; height:35px; padding:0;">METTRE À JOUR LA ROOM</button>
+                    <p style="font-size: 0.55rem; color: #888; text-align: center; margin-top: 8px;">Synchronisé en temps réel pour tous.</p>
                 </div>
             </section>
             
