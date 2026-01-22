@@ -5,41 +5,52 @@ body, html {
     background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), 
                 url('Freefire.jpg') no-repeat center center fixed;
     background-size: cover;
+    overflow-x: hidden; /* Empêche strictement de voir la ligne jaune à droite */
 }
 
+/* BOUTON MENU */
+.menu-toggle {
+    position: fixed; top: 20px; right: 20px;
+    width: 30px; height: 22px; z-index: 1100; cursor: pointer;
+    display: flex; flex-direction: column; justify-content: space-between;
+}
+.menu-toggle span { display: block; height: 3px; width: 100%; background: #f1c40f; border-radius: 3px; transition: 0.3s; }
+
+/* MENU LATÉRAL SANS LIGNE VISIBLE */
+.side-menu {
+    position: fixed; top: 0; 
+    right: -320px; /* Complètement caché à l'extérieur */
+    width: 280px; height: 100%;
+    background: rgba(10, 17, 34, 0.98);
+    border-left: 2px solid #f1c40f;
+    z-index: 1050; transition: 0.4s ease-in-out;
+    padding: 80px 20px;
+}
+.side-menu.active { right: 0; }
+
+/* IMAGE CIRCULAIRE ADMIN */
+.profile-img-circle {
+    width: 85px; height: 85px;
+    border-radius: 50%;
+    border: 2px solid #f1c40f;
+    object-fit: cover;
+    box-shadow: 0 0 15px rgba(241, 196, 15, 0.3);
+}
+
+/* LE RESTE RESTE INCHANGÉ */
 .selector-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-.selector-card { 
-    background: rgba(10, 17, 34, 0.98); padding: 25px 30px; border-radius: 20px; border: 2px solid #f1c40f; 
-    width: 100%; max-width: 420px; text-align: center; box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
-}
-
+.selector-card { background: rgba(10, 17, 34, 0.98); padding: 25px 30px; border-radius: 20px; border: 2px solid #f1c40f; width: 100%; max-width: 420px; text-align: center; }
 .gradient-text { font-family: 'Orbitron'; color: #f1c40f; font-size: 1.8rem; margin: 0; }
 .sub-logo { font-size: 0.7rem; letter-spacing: 3px; color: #bdc3c7; }
-
 .tourney-list { max-height: 160px; overflow-y: auto; margin: 10px 0; padding: 5px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; }
-.tourney-list::-webkit-scrollbar { width: 4px; }
-.tourney-list::-webkit-scrollbar-thumb { background: #f1c40f; border-radius: 10px; }
-
-.team-row { 
-    display: flex; justify-content: space-between; align-items: center; 
-    background: rgba(28, 38, 59, 0.6); margin-bottom: 5px; padding: 10px; 
-    border-radius: 6px; border-left: 3px solid #f1c40f; font-size: 0.9rem;
-}
-
+.team-row { display: flex; justify-content: space-between; align-items: center; background: rgba(28, 38, 59, 0.6); margin-bottom: 5px; padding: 10px; border-radius: 6px; border-left: 3px solid #f1c40f; font-size: 0.9rem; }
 .footer-controls { margin-top: 15px; }
-.contact-box { background: rgba(255, 255, 255, 0.03); padding: 12px; border-radius: 10px; }
 .btn-contact { display: inline-block; text-decoration: none; color: #f1c40f; border: 1px solid #f1c40f; padding: 8px 15px; font-size: 0.7rem; border-radius: 5px; font-family: 'Orbitron'; }
-.system-separator { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); margin: 15px 0 10px 0; }
 .btn-system { background: transparent; border: none; color: rgba(255, 255, 255, 0.3); cursor: pointer; font-size: 0.65rem; font-family: 'Orbitron'; }
-
 input, select { width: 100%; padding: 10px; margin-bottom: 8px; background: rgba(5, 8, 15, 0.8); border: 1px solid #1c263b; color: white; border-radius: 4px; box-sizing: border-box; font-size: 0.85rem; }
 .btn-create { background: #f1c40f; color: black; border: none; padding: 12px; font-weight: 900; width: 100%; cursor: pointer; font-family: 'Orbitron'; clip-path: polygon(5% 0%, 100% 0%, 95% 100%, 0% 100%); }
-
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(5px); }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 2000; backdrop-filter: blur(5px); }
 .modal-card { background: #0a1122; border: 2px solid #f1c40f; padding: 25px; border-radius: 15px; width: 300px; text-align: center; }
-.btn-modal-cancel { flex:1; background:#333; color:white; border:none; padding:10px; cursor:pointer; }
-.btn-modal-ok { flex:1; background:#f1c40f; color:black; border:none; padding:10px; font-weight:bold; cursor:pointer; }
-
 .hero-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: rgba(10, 17, 34, 0.9); border-bottom: 1px solid #f1c40f; }
 .btn-nav-back { background:none; border:1px solid #f1c40f; color:#f1c40f; cursor:pointer; padding:5px 10px; font-family: 'Orbitron'; font-size: 0.7rem; }
 .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; }
