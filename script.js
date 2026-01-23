@@ -256,21 +256,41 @@ function joinCommunityChat() {
 
 function initChat() {
     document.getElementById('chat-auth-ui').style.display = 'none';
-    document.getElementById('chat-interface').style.display = 'block';
+    document.getElementById('chat-interface').style.display = 'flex';
 
+    // Écouter les messages (limité aux 50 derniers)
     db.ref('community_messages').limitToLast(50).on('value', snap => {
         const container = document.getElementById('chat-messages');
         container.innerHTML = "";
-        Object.values(snap.val() || {}).forEach(m => {
+        
+        snap.forEach(child => {
+            const m = child.val();
             const isMe = m.uid === currentUser.uid;
+            const time = m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "";
+            
             container.innerHTML += `
-                <div style="margin-bottom:10px; padding:8px; border-radius:8px; background:${isMe ? 'rgba(241,196,15,0.1)' : 'rgba(255,255,255,0.05)'}; border-left: 3px solid ${isMe ? '#f1c40f' : '#555'}">
-                    <small style="color:#f1c40f; font-size:0.7rem;">${m.pseudo}</small>
-                    <p style="margin:2px 0; font-size:0.9rem;">${m.text}</p>
+                <div class="msg-wrapper ${isMe ? 'msg-me' : 'msg-them'}">
+                    <div class="chat-meta">${isMe ? 'Moi' : m.pseudo} • ${time}</div>
+                    <div class="bubble">${m.text}</div>
                 </div>`;
         });
+        // Scroll automatique vers le bas
         container.scrollTop = container.scrollHeight;
     });
+}
+
+function sendMessage() {
+    const input = document.getElementById('chat-msg-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    db.ref('community_messages').push({
+        pseudo: currentUser.pseudo,
+        uid: currentUser.uid,
+        text: text,
+        timestamp: Date.now()
+    });
+    input.value = "";
 }
 
 function sendMessage() {
@@ -352,17 +372,16 @@ function loadPodium() {
     db.ref(`brackets/${currentTournamentId}`).once('value', snap => {
         const results = snap.val() || {};
         
-        // 1. Trouver le dernier match (La Finale)
-        const matchKeys = Object.keys(results);
-        // On cherche le round le plus élevé (ex: r3_m0 si 8 équipes)
-        const finalMatchId = matchKeys.sort().pop(); 
-        
-        const winner1 = results[finalMatchId] || "EN ATTENTE...";
-        
-        // 2. Déterminer le 2ème (le perdant de la finale)
-        // On peut aussi le stocker manuellement lors du setWinner pour plus de précision
-        const winner2 = "FINALISTE"; 
-        const winner3 = "TOP 3";
+        // 1er : Gagnant de la finale (rX_m0 le plus élevé)
+        const finalMatchId = Object.keys(results).filter(k => k.startsWith('r')).sort().pop();
+        const winner1 = results[finalMatchId] || "---";
+
+        // 2ème : On demande à l'admin de le saisir ou on le déduit
+        // Pour faire simple, on ajoute un champ dans l'admin ou on utilise une clé fixe
+        const winner2 = results['finalist_2nd'] || "FINALISTE";
+
+        // 3ème : Gagnant du match de consolation
+        const winner3 = results['match_3rd_place'] || "TOP 3";
 
         container.innerHTML = `
             <div class="podium-step step-2">
@@ -370,13 +389,11 @@ function loadPodium() {
                 <div class="podium-rank">2</div>
                 <div class="podium-name">${winner2}</div>
             </div>
-            
             <div class="podium-step step-1">
                 <div class="medal-icon">👑</div>
                 <div class="podium-rank">1</div>
-                <div class="podium-name" style="color:#f1c40f; font-weight:bold;">${winner1}</div>
+                <div class="podium-name">${winner1}</div>
             </div>
-            
             <div class="podium-step step-3">
                 <div class="medal-icon">🥉</div>
                 <div class="podium-rank">3</div>
@@ -436,6 +453,7 @@ function loadBracketRealTime() {
     });
 }
 
+// MODIFICATION DE LA GÉNÉRATION DE L'ARBRE
 function renderFullBracket(container, teams, results) {
     container.innerHTML = "";
     if (teams.length < 2) {
@@ -443,14 +461,14 @@ function renderFullBracket(container, teams, results) {
         return;
     }
 
-    // Calcul du nombre de rounds nécessaires (ex: 8 équipes = 3 rounds)
+    // 1. GÉNÉRATION DES MATCHS QUALIFICATIFS JUSQU'À LA FINALE
     const nbRounds = Math.ceil(Math.log2(teams.length));
     let currentRoundTeams = teams.map(t => t.teamName);
 
     for (let r = 1; r <= nbRounds; r++) {
         const roundDiv = document.createElement('div');
         roundDiv.className = "bracket-round";
-        const title = r === nbRounds ? "FINALE" : `ROUND ${r}`;
+        const title = r === nbRounds ? "GRANDE FINALE" : `ROUND ${r}`;
         roundDiv.innerHTML = `<div class='round-title'>${title}</div>`;
 
         let nextRoundTeams = [];
@@ -458,24 +476,83 @@ function renderFullBracket(container, teams, results) {
 
         for (let m = 0; m < nbMatches; m++) {
             const matchId = `r${r}_m${m}`;
-            const team1 = currentRoundTeams[m * 2] || "EN ATTENTE";
-            const team2 = currentRoundTeams[m * 2 + 1] || "EN ATTENTE";
+            const team1 = currentRoundTeams[m * 2] || "TBD";
+            const team2 = currentRoundTeams[m * 2 + 1] || "TBD";
             const winner = results[matchId];
 
-            // On prépare les équipes pour le round suivant
             nextRoundTeams.push(winner || "TBD");
 
             roundDiv.innerHTML += `
                 <div class="bracket-match">
-                    <div class="bracket-team ${winner === team1 && team1 !== "EN ATTENTE" ? 'winner' : ''}" 
-                         onclick="setWinner('${matchId}', '${team1}')">${team1}</div>
-                    <div class="bracket-team ${winner === team2 && team2 !== "EN ATTENTE" ? 'winner' : ''}" 
-                         onclick="setWinner('${matchId}', '${team2}')">${team2}</div>
+                    <div class="bracket-team ${winner === team1 && team1 !== 'TBD' ? 'winner' : ''}" 
+                         onclick="handleMatchClick('${matchId}', '${team1}', '${team2}')">${team1}</div>
+                    <div class="bracket-team ${winner === team2 && team2 !== 'TBD' ? 'winner' : ''}" 
+                         onclick="handleMatchClick('${matchId}', '${team2}', '${team1}')">${team2}</div>
                 </div>`;
         }
         container.appendChild(roundDiv);
-        currentRoundTeams = nextRoundTeams; // Les gagnants deviennent les joueurs du prochain round
+        currentRoundTeams = nextRoundTeams;
     }
+
+    // 2. AJOUT DU MATCH POUR LA 3ÈME PLACE (En dessous ou à côté)
+    db.ref(`brackets/${currentTournamentId}/match_3rd_slots`).once('value', slotSnap => {
+    const slots = slotSnap.val() || { teamA: "Perdant Semi 1", teamB: "Perdant Semi 2" };
+    const winner3rd = results['match_3rd_place'] || "TBD";
+
+    const consolationDiv = document.createElement('div');
+    consolationDiv.className = "bracket-round consolation-box";
+    consolationDiv.innerHTML = `
+        <div class='round-title' style="color:#e67e22">PETITE FINALE (3ème PLACE)</div>
+        <div class="bracket-match" style="border-color:#e67e22">
+            <div class="bracket-team ${winner3rd === slots.teamA ? 'winner' : ''}" 
+                 onclick="setWinner('match_3rd_place', '${slots.teamA}')">${slots.teamA}</div>
+            <div class="bracket-team ${winner3rd === slots.teamB ? 'winner' : ''}" 
+                 onclick="setWinner('match_3rd_place', '${slots.teamB}')">${slots.teamB}</div>
+        </div>
+    `;
+    container.appendChild(consolationDiv);
+});
+}
+
+// Nouvelle fonction pour gérer le gagnant ET le perdant (2ème place) automatiquement
+async function handleMatchClick(matchId, winnerName, loserName) {
+    if (winnerName === "TBD" || winnerName === "EN ATTENTE") return;
+
+    const tourneySnap = await db.ref(`tournaments/${currentTournamentId}`).once('value');
+    const adminPass = tourneySnap.val().adminPassword;
+
+    showModal("ADMIN SCORE", `Confirmer ${winnerName} comme vainqueur ?`, (input) => {
+        if (input === adminPass) {
+            // 1. Enregistrer le gagnant du match actuel
+            db.ref(`brackets/${currentTournamentId}/${matchId}`).set(winnerName);
+            
+            // 2. Logique spéciale pour les Demi-Finales (Round avant la finale)
+            // Détecter si c'est une demi-finale pour envoyer le perdant en Petite Finale
+            const totalRounds = Math.ceil(Math.log2(teams.length));
+            const currentRound = parseInt(matchId.split('_')[0].replace('r', ''));
+
+            if (currentRound === totalRounds - 1) {
+                // On envoie le perdant vers les slots de la 3ème place
+                const slot = matchId.endsWith('m0') ? 'teamA' : 'teamB';
+                db.ref(`brackets/${currentTournamentId}/match_3rd_slots/${slot}`).set(loserName);
+            }
+
+            // Si c'est la Grande Finale, on enregistre le 2ème place
+            if (currentRound === totalRounds) {
+                db.ref(`brackets/${currentTournamentId}/finalist_2nd`).set(loserName);
+            }
+
+            // 3. Logique pour la Grande Finale
+            if (currentRound === totalRounds) {
+                db.ref(`brackets/${currentTournamentId}/finalist_2nd`).set(loserName);
+            }
+            
+            closeModal();
+            notify("Résultat et perdant mis à jour !");
+        } else {
+            notify("Code incorrect", "error");
+        }
+    });
 }
 
 // MISE À JOUR SÉCURISÉE
@@ -518,4 +595,105 @@ function renderBracketUI(container, teams, matches) {
             </div>`;
     }
     container.appendChild(round1);
+}
+
+// Correction pour le défilement tactile de l'arbre
+const bracketScroll = document.querySelector('.bracket-scroll');
+if (bracketScroll) {
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    bracketScroll.addEventListener('mousedown', (e) => {
+        isDown = true;
+        startX = e.pageX - bracketScroll.offsetLeft;
+        scrollLeft = bracketScroll.scrollLeft;
+    });
+    bracketScroll.addEventListener('mouseleave', () => isDown = false);
+    bracketScroll.addEventListener('mouseup', () => isDown = false);
+    bracketScroll.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - bracketScroll.offsetLeft;
+        const walk = (x - startX) * 2;
+        bracketScroll.scrollLeft = scrollLeft - walk;
+    });
+}
+
+// Fonction pour fermer le clavier Android après envoi dans le chat
+function sendMessage() {
+    const input = document.getElementById('chat-msg-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    db.ref('community_messages').push({
+        pseudo: currentUser.pseudo,
+        uid: currentUser.uid,
+        text: text,
+        timestamp: Date.now()
+    });
+    
+    input.value = "";
+    input.blur(); // Ferme le clavier sur mobile
+}
+
+// GESTION DES ONGLETS (Switch)
+function switchTab(tabName) {
+    // Cacher toutes les vues
+    document.querySelectorAll('.tab-content').forEach(view => view.style.display = 'none');
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+    // Afficher la bonne vue
+    if(tabName === 'registration') {
+        document.getElementById('registration-view').style.display = 'flex';
+        document.getElementById('tab-reg').classList.add('active');
+    } else if(tabName === 'bracket') {
+        document.getElementById('bracket-view').style.display = 'flex';
+        document.getElementById('tab-brack').classList.add('active');
+        loadBracketRealTime();
+    } else if(tabName === 'chat') {
+        document.getElementById('tourney-chat-view').style.display = 'flex';
+        document.getElementById('tab-chat').classList.add('active');
+        initTourneyChat();
+    } else if(tabName === 'podium') {
+        document.getElementById('podium-view').style.display = 'flex';
+        document.getElementById('tab-pod').classList.add('active');
+        loadPodium();
+    }
+}
+
+// LOGIQUE CHAT TOURNOI
+function initTourneyChat() {
+    if (!currentTournamentId) return;
+    const chatContainer = document.getElementById('chat-messages-tourney');
+    
+    db.ref(`tourney_chats/${currentTournamentId}`).limitToLast(30).on('value', snap => {
+        chatContainer.innerHTML = "";
+        snap.forEach(child => {
+            const m = child.val();
+            const isMe = m.uid === currentUser.uid;
+            chatContainer.innerHTML += `
+                <div class="${isMe ? 'msg-me' : 'msg-them'}">
+                    <small style="font-size:0.6rem; opacity:0.7;">${m.pseudo}</small>
+                    <div style="font-size:0.85rem;">${m.text}</div>
+                </div>`;
+        });
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    });
+}
+
+function sendChatMessage(type) {
+    const input = type === 'tourney' ? document.getElementById('chat-input-tourney') : document.getElementById('chat-input-global');
+    const path = type === 'tourney' ? `tourney_chats/${currentTournamentId}` : `community_messages`;
+    
+    if (!input.value.trim()) return;
+
+    db.ref(path).push({
+        pseudo: currentUser.pseudo,
+        uid: currentUser.uid,
+        text: input.value,
+        timestamp: Date.now()
+    });
+    input.value = "";
+    input.focus();
 }
