@@ -194,7 +194,7 @@ document.getElementById('proTournamentForm').onsubmit = function(e) {
 function loadTeams(id) {
     const container = document.getElementById('teamsContainer');
     db.ref(`teams/${id}`).on('value', snap => {
-        container.innerHTML = "<h3 class='gradient-text' style='font-size:0.7rem;'>ÉQUIPES INSCRITES</h3>";
+        container.innerHTML = "<h3 class='gradient-text' style='font-size:0.7rem;'></h3>";
         Object.values(snap.val() || {}).forEach(t => {
             container.innerHTML += `<div class="team-row" style="flex-direction:column; align-items:flex-start;">
                 <strong>${t.teamName}</strong><small style="color:#888;">${t.players.join(", ")}</small>
