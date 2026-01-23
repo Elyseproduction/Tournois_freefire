@@ -27,24 +27,25 @@
     </div>
 </nav>
 
-<div id="community-section" class="selector-overlay section-page" style="display:none;">
-    <div class="selector-card" style="background: rgba(10, 17, 34, 0.95);">
+<div id="community-section" class="selector-overlay" style="display:none;">
+    <div class="selector-card" id="card-community" style="max-width: 500px; height: 80vh; display: flex; flex-direction: column;">
         <h2 class="gradient-text">COMMUNAUTÉ</h2>
-        <span class="sub-logo">DISCUTER AVEC LES JOUEURS</span>
+        <span class="sub-logo" id="online-count">SALON GÉNÉRAL</span>
 
-        <div id="chat-auth-ui">
+        <div id="chat-auth-ui" style="margin: auto 0;">
             <div class="setup-box">
+                <p style="font-size: 0.8rem; color: #888;">Identifiez-vous pour discuter</p>
                 <input type="text" id="chat-pseudo" placeholder="VOTRE PSEUDO FF">
-                <input type="number" id="chat-uid" placeholder="VOTRE UID FF">
-                <button onclick="joinCommunityChat()" class="btn-create">REJOINDRE</button>
+                <input type="number" id="chat-uid" placeholder="VOTRE UID UNIQUE">
+                <button onclick="joinCommunityChat()" class="btn-create">REJOINDRE LE CHAT</button>
             </div>
         </div>
 
-        <div id="chat-interface" style="display:none;">
-            <div id="chat-messages" style="height: 300px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 10px; padding: 10px; margin-bottom: 10px; text-align: left;"></div>
-            <div style="display: flex; gap: 5px;">
-                <input type="text" id="chat-msg-input" placeholder="Message..." style="margin:0;">
-                <button onclick="sendMessage()" class="btn-create" style="width: 50px; margin:0; clip-path:none;">➤</button>
+        <div id="chat-interface" style="display:none; flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+            <div id="chat-messages" class="chat-window"></div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-msg-input" placeholder="Écrivez votre message..." onkeypress="if(event.key === 'Enter') sendMessage()">
+                <button onclick="sendMessage()" class="btn-send-chat">➤</button>
             </div>
         </div>
     </div>
@@ -94,40 +95,48 @@
 </div>
 
 <div id="main-interface" class="selector-overlay" style="display:none;">
-    <div class="selector-card" id="card-registration" style="max-width: 600px;">
-        <button onclick="exitTournament()" class="btn-system" style="margin-bottom:15px; width:auto;">← RETOUR</button>
-        
-        <h2 id="activeTournamentTitle" class="gradient-text"></h2>
+    <div class="selector-card chat-card-mobile">
+        <button onclick="exitTournament()" class="btn-system" style="margin-bottom:10px; width:auto;">← QUITTER</button>
+        <h2 id="activeTournamentTitle" class="gradient-text" style="font-size:1rem; margin:5px 0;"></h2>
 
-        <div style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center;">
-    <button onclick="switchTab('registration')" class="btn-create" style="margin:0; flex:1; font-size:0.6rem;">INSCRIPTIONS</button>
-    <button onclick="switchTab('bracket')" class="btn-create" style="margin:0; flex:1; font-size:0.6rem; background:#333;">ARBRE</button>
-    <button onclick="switchTab('podium')" class="btn-create" style="margin:0; flex:1; font-size:0.6rem; background:#1a1a1a; border:1px solid #f1c40f;" id="btn-podium">🏆 PODIUM</button>
-</div>
+        <div class="tourney-tabs">
+            <button onclick="switchTab('registration')" id="tab-reg" class="tab-btn active">INFO</button>
+            <button onclick="switchTab('bracket')" id="tab-brack" class="tab-btn">ARBRE</button>
+            <button onclick="switchTab('chat')" id="tab-chat" class="tab-btn">CHAT</button>
+            <button onclick="switchTab('podium')" id="tab-pod" class="tab-btn">🏆</button>
+        </div>
 
-<div id="podium-view" style="display:none; text-align:center; padding: 20px 0;">
-    <h3 class="gradient-text" style="font-size: 1.5rem;">CLASSEMENT FINAL</h3>
-    <div class="podium-container" id="podium-data">
-    </div>
-</div>
-
-        <div id="registration-view">
-            <span class="sub-logo">INSCRIPTION ÉQUIPE</span>
+        <div id="registration-view" class="tab-content">
+            <span class="sub-logo" style="display: block; text-align: center; margin-bottom: 15px; color: #f1c40f;">INSCRIPTION ÉQUIPE</span>
             <form id="proTournamentForm">
                 <div class="setup-box">
                     <input type="text" id="teamName" placeholder="NOM ÉQUIPE" required>
-                    <input type="url" id="facebook" placeholder="URL FACEBOOK" required>
-                    <div id="membersContainer"></div>
-                    <button type="submit" class="btn-create">VALIDER L'INSCRIPTION</button>
+                    <input type="url" id="facebook" placeholder="LIEN FACEBOOK" required>
+                    <div id="membersContainer"></div> 
+                    <button type="submit" class="btn-create" style="width: 100%; margin-top: 10px;">VALIDER L'INSCRIPTION</button>
                 </div>
             </form>
-            <div id="teamsContainer" class="tourney-list" style="margin-top:20px;"></div>
+            <h3 class="gradient-text" style="font-size: 0.9rem; margin-top: 20px;">ÉQUIPES INSCRITES</h3>
+            <div id="teamsContainer" class="tourney-list"></div>
         </div>
 
-        <div id="bracket-view" style="display:none; width:100%;">
-            <div class="bracket-scroll" style="overflow-x:auto;">
+        <div id="bracket-view" class="tab-content" style="display:none;">
+            <div class="bracket-scroll">
                 <div class="bracket-container" id="bracket-data"></div>
             </div>
+        </div>
+
+        <div id="tourney-chat-view" class="tab-content" style="display:none;">
+            <div id="chat-messages-tourney" class="chat-window"></div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input-tourney" placeholder="Message au tournoi...">
+                <button onclick="sendChatMessage('tourney')" class="btn-send-chat">➤</button>
+            </div>
+        </div>
+
+        <div id="podium-view" class="tab-content" style="display:none;">
+            <h3 class="gradient-text" style="font-size: 1.2rem; text-align: center;">CLASSEMENT FINAL</h3>
+            <div class="podium-container" id="podium-data"></div>
         </div>
     </div>
 </div>
