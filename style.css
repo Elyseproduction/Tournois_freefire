@@ -8,49 +8,413 @@ body, html {
     background-size: cover; overflow-x: hidden; width: 100%;
 }
 
-.menu-toggle { position: fixed; top: 20px; right: 20px; width: 30px; height: 22px; z-index: 1100; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; }
-.menu-toggle span { display: block; height: 3px; width: 100%; background: #f1c40f; border-radius: 3px; }
-
-.side-menu { position: fixed; top: 0; right: -350px; width: 280px; height: 100%; background: rgba(10, 17, 34, 0.98); border-left: 2px solid #f1c40f; z-index: 1050; transition: 0.4s ease-in-out; padding: 80px 20px; }
-.side-menu.active { right: 0; }
-.profile-img-circle { width: 85px; height: 85px; border-radius: 50%; border: 2px solid #f1c40f; object-fit: cover; }
-
-.selector-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-.selector-card { background: rgba(10, 17, 34, 0.98); padding: 25px 30px; border-radius: 20px; border: 2px solid #f1c40f; width: 100%; max-width: 420px; text-align: center; }
-.gradient-text { font-family: 'Orbitron'; color: #f1c40f; font-size: 1.8rem; margin: 0; }
-.sub-logo { font-size: 0.7rem; letter-spacing: 3px; color: #bdc3c7; }
-
-.btn-create { background: #f1c40f; color: black; border: none; padding: 12px; font-weight: 900; width: 100%; cursor: pointer; font-family: 'Orbitron'; clip-path: polygon(5% 0%, 100% 0%, 95% 100%, 0% 100%); transition: 0.3s; }
-.btn-create:disabled { background: #444 !important; color: #888; }
-
-.btn-contact { display: inline-block; text-decoration: none; color: #f1c40f; border: 1px solid #f1c40f; padding: 8px 15px; font-size: 0.7rem; border-radius: 5px; font-family: 'Orbitron'; transition: 0.3s; }
-.btn-contact:hover { background: #f1c40f; color: black; }
-.btn-system { background: transparent; border: none; color: rgba(255, 255, 255, 0.2); cursor: pointer; font-size: 0.6rem; font-family: 'Orbitron'; letter-spacing: 1px; }
-
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 99999; backdrop-filter: blur(8px); }
-.modal-card { background: #0a1122; border: 2px solid #f1c40f; padding: 25px; border-radius: 15px; width: 90%; max-width: 320px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
-
-input, select { width: 100%; padding: 12px; margin-bottom: 8px; background: rgba(5, 8, 15, 0.8); border: 1px solid #1c263b; color: white; border-radius: 4px; font-size: 16px; transition: border 0.3s; }
-
-/* AMÉLIORATION VISUELLE ERREUR */
-.error-shake { border: 1px solid #ff4d4d !important; animation: shake 0.4s ease-in-out; }
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-10px); }
-    75% { transform: translateX(10px); }
+.pro-navbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 30px; height: 75px; background: rgba(10, 17, 34, 0.9);
+    backdrop-filter: blur(10px); border-bottom: 2px solid rgba(241, 196, 15, 0.4);
+    position: sticky; top: 0; z-index: 2000;
 }
 
-.tourney-list { max-height: 160px; overflow-y: auto; margin: 10px 0; padding: 5px; }
-.team-row { display: flex; justify-content: space-between; align-items: center; background: rgba(28, 38, 59, 0.6); margin-bottom: 5px; padding: 10px; border-radius: 6px; border-left: 3px solid #f1c40f; }
+/* Correction pour supprimer le gros bloc noir */
+.selector-card { 
+    padding: 30px; border-radius: 20px; border: 2px solid #f1c40f; 
+    width: 100%; max-width: 450px; text-align: center; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative;
+    background: rgba(10, 17, 34, 0.95) !important; /* Utilise un fond sombre propre au lieu de l'image qui bug */
+    background-image: none !important; 
+}
 
-.main-grid { display: grid; grid-template-columns: 1fr; gap: 20px; padding: 20px; }
-@media (min-width: 768px) { .main-grid { grid-template-columns: 1fr 1fr; } }
-.panel { background: rgba(10, 17, 34, 0.85); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
+/* Assure-toi que les sections s'affichent bien en colonne */
+.selector-overlay {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: calc(100vh - 75px); width: 100%; padding: 20px;
+}
 
-.toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 100000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-.toast { background: rgba(10, 17, 34, 0.95); color: white; padding: 12px 25px; border-radius: 5px; border-left: 4px solid #f1c40f; font-family: 'Orbitron'; font-size: 0.75rem; text-transform: uppercase; animation: slideDown 0.4s ease-out forwards; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-.toast.error { border-left-color: #ff4d4d; color: #ff4d4d; }
+#card-creation { background: linear-gradient(rgba(10, 17, 34, 0.93), rgba(10, 17, 34, 0.93)), url('Freefire1.png'); }
+#card-registration { background: linear-gradient(rgba(10, 17, 34, 0.93), rgba(10, 17, 34, 0.93)), url('fond_inscription.jpg'); }
 
-@keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-.toast.fade-out { animation: fadeOut 0.4s ease-in forwards; }
-@keyframes fadeOut { to { opacity: 0; transform: translateY(-20px); } }
+.gradient-text { font-family: 'Orbitron'; color: #f1c40f; text-transform: uppercase; }
+.sub-logo { font-size: 0.7rem; color: #888; letter-spacing: 2px; display: block; margin-bottom: 20px; }
+
+input, select { 
+    width: 100%; padding: 12px; margin-bottom: 10px; background: rgba(5, 8, 15, 0.6) !important; 
+    border: 1px solid rgba(241, 196, 15, 0.2); color: white; border-radius: 6px; font-family: 'Rajdhani';
+}
+
+.btn-create { 
+    background: #f1c40f; color: black; border: none; padding: 12px; font-weight: bold; width: 100%; 
+    cursor: pointer; font-family: 'Orbitron'; clip-path: polygon(5% 0%, 100% 0%, 95% 100%, 0% 100%); margin-top: 10px;
+}
+
+.btn-system {
+    background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(241, 196, 15, 0.2);
+    color: rgba(241, 196, 15, 0.6); padding: 10px 20px; border-radius: 8px;
+    cursor: pointer; font-family: 'Orbitron'; font-size: 0.7rem;
+}
+
+.tourney-list { max-height: 200px; overflow-y: auto; margin: 10px 0; }
+.team-row { 
+    background: rgba(255,255,255,0.03); margin-bottom: 8px; padding: 12px; 
+    border-radius: 6px; display: flex; justify-content: space-between; align-items: center;
+    border-left: 3px solid transparent; transition: 0.3s;
+}
+
+.btn-action-small {
+    background: rgba(255, 255, 255, 0.1); color: white; border: none; 
+    padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; margin-left: 5px;
+}
+
+/* NOTIFICATIONS AMELIOREES */
+.toast-container { position: fixed; top: 85px; right: 20px; z-index: 9999; pointer-events: none; }
+.toast { 
+    background: rgba(10, 17, 34, 0.95); 
+    border-left: 4px solid #f1c40f; 
+    border-right: 1px solid rgba(241, 196, 15, 0.2);
+    border-top: 1px solid rgba(241, 196, 15, 0.2);
+    border-bottom: 1px solid rgba(241, 196, 15, 0.2);
+    color: white; 
+    padding: 15px 25px; 
+    margin-bottom: 10px; 
+    font-size: 0.85rem; 
+    font-family: 'Orbitron';
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+    backdrop-filter: blur(10px);
+    animation: slideIn 0.4s ease forwards;
+    pointer-events: auto; 
+    min-width: 280px;
+    border-radius: 4px;
+}
+.toast.error { border-left-color: #e74c3c; }
+
+@keyframes slideIn { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* ... Reste des styles modal, nav et side-menu ... */
+.nav-logo-img { height: 45px; border-radius: 50%; }
+.nav-links { display: flex; list-style: none; gap: 20px; }
+.nav-links a { text-decoration: none; color: #bbb; font-size: 0.7rem; font-family: 'Orbitron'; }
+.nav-admin-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 5px 15px; background: rgba(255,255,255,0.05); border-radius: 50px; border: 1px solid #f1c40f33; }
+.nav-avatar { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #f1c40f; }
+.admin-status { font-size: 0.5rem; color: #2ecc71; font-family: 'Orbitron'; }
+.side-menu { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: #0a1122fb; border-left: 2px solid #f1c40f; z-index: 3000; transition: 0.3s; padding: 30px 20px; }
+.side-menu.active { right: 0; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 4000; }
+.modal-card { background: #0a1122; border: 1px solid #f1c40f; padding: 25px; border-radius: 15px; width: 300px; text-align: center; }
+.btn-modal-ok { background: #f1c40f; border: none; padding: 8px 15px; cursor: pointer; font-weight: bold; flex: 1; }
+.btn-modal-cancel { background: #444; color: white; border: none; padding: 8px 15px; cursor: pointer; flex: 1; }
+@media (max-width: 600px) { .nav-links { display: none; } }
+
+/* Correction de l'alignement Logo + Texte */
+.nav-left {
+    display: flex;
+    align-items: center; /* Centre verticalement le logo et le texte */
+    gap: 12px;           /* Espace constant entre l'image et le texte */
+}
+
+.nav-logo-img {
+    height: 45px;
+    width: 45px;         /* Force une largeur égale pour éviter les déformations */
+    object-fit: cover;   /* Assure que l'image remplit bien le cercle */
+    border-radius: 50%;
+}
+
+.nav-left .gradient-text {
+    margin: 0;           /* Supprime les marges par défaut qui décalent le texte */
+    line-height: 1;      /* Aligne la base du texte avec le logo */
+    display: inline-block;
+}
+
+/* Style du Menu Latéral (Side Menu) */
+.side-menu {
+    background: linear-gradient(180deg, #0a1122 0%, #05080f 100%) !important;
+    box-shadow: -5px 0 20px rgba(0,0,0,0.5);
+}
+
+.menu-content h2 {
+    text-align: center;
+    border-bottom: 2px solid #f1c40f;
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+    font-size: 1.4rem !important;
+}
+
+/* Carte d'information Admin */
+.admin-info-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(241, 196, 15, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Ajout d'un effet de reflet sur la carte */
+.admin-info-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(241, 196, 15, 0.05) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.admin-info-card p {
+    margin: 15px 0;
+    font-size: 0.8rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Style spécifique pour le Pseudo et l'UID */
+.highlight-gold {
+    display: block;
+    color: #f1c40f;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 900;
+    margin-top: 5px;
+    text-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
+    word-break: break-all;
+}
+
+/* Bouton fermer du menu */
+.btn-close-menu {
+    background: none;
+    border: 1px solid #f1c40f;
+    color: #f1c40f;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    float: right;
+    transition: 0.3s;
+}
+
+.btn-close-menu:hover {
+    background: #f1c40f;
+    color: black;
+}
+
+/* Container de l'arbre */
+.bracket-container {
+    display: flex;
+    gap: 40px;
+    padding: 20px;
+    min-width: max-content;
+}
+
+/* Colonne de Round */
+.bracket-round {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 20px;
+}
+
+/* Match individuel */
+.bracket-match {
+    background: rgba(10, 17, 34, 0.8);
+    border: 1px solid rgba(241, 196, 15, 0.3);
+    border-radius: 8px;
+    width: 180px;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.bracket-team {
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Orbitron';
+    font-size: 0.75rem;
+}
+
+.bracket-team:first-child {
+    border-bottom: 1px solid rgba(241, 196, 15, 0.1);
+}
+
+.bracket-team.winner {
+    color: #f1c40f;
+    background: rgba(241, 196, 15, 0.05);
+}
+
+.bracket-score {
+    color: #f1c40f;
+    font-weight: bold;
+}
+
+/* Connecteurs (Lignes) */
+.bracket-match::after {
+    content: "";
+    position: absolute;
+    right: -40px;
+    top: 50%;
+    width: 40px;
+    height: 2px;
+    background: rgba(241, 196, 15, 0.2);
+}
+
+.bracket-round:last-child .bracket-match::after {
+    display: none;
+}
+
+.bracket-scroll { overflow-x: auto; padding: 20px 0; width: 100%; cursor: grab; }
+.bracket-container { display: flex; gap: 50px; justify-content: flex-start; align-items: center; padding: 20px; }
+
+.bracket-round { display: flex; flex-direction: column; gap: 30px; }
+.round-title { color: #f1c40f; font-family: 'Orbitron'; font-size: 0.7rem; margin-bottom: 10px; text-align: center; }
+
+.bracket-match {
+    background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(241, 196, 15, 0.3);
+    border-radius: 8px; width: 180px; position: relative; transition: 0.3s;
+}
+
+.bracket-team {
+    padding: 10px; font-size: 0.75rem; font-family: 'Rajdhani';
+    display: flex; justify-content: space-between; cursor: pointer;
+}
+
+.bracket-team:first-child { border-bottom: 1px solid rgba(255,255,255,0.05); }
+.bracket-team.winner { color: #f1c40f; font-weight: bold; background: rgba(241, 196, 15, 0.1); }
+
+/* Lignes de connexion */
+.bracket-match::after {
+    content: ""; position: absolute; right: -50px; top: 50%;
+    width: 50px; height: 2px; background: rgba(241, 196, 15, 0.2);
+}
+.bracket-round:last-child .bracket-match::after { display: none; }
+
+.bracket-team {
+    padding: 10px;
+    font-size: 0.75rem;
+    font-family: 'Orbitron';
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer; /* Indique que c'est cliquable */
+    transition: 0.2s;
+}
+
+.bracket-team:hover {
+    background: rgba(241, 196, 15, 0.1);
+}
+
+.bracket-team.winner {
+    color: #f1c40f;
+    font-weight: 900;
+    background: rgba(241, 196, 15, 0.2);
+    border-left: 2px solid #f1c40f;
+}
+
+.bracket-round {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around; /* Aligne les matchs entre les rounds */
+    gap: 30px;
+    min-width: 180px;
+}
+
+.bracket-match {
+    background: rgba(10, 17, 34, 0.9);
+    border: 1px solid rgba(241, 196, 15, 0.3);
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* Ligne vers le match suivant */
+.bracket-match::after {
+    content: "";
+    position: absolute;
+    right: -40px;
+    top: 50%;
+    width: 40px;
+    height: 2px;
+    background: rgba(241, 196, 15, 0.2);
+    z-index: -1;
+}
+
+/* Supprime la ligne pour la finale */
+.bracket-round:last-child .bracket-match::after {
+    display: none;
+}
+
+.bracket-team.winner {
+    color: #f1c40f;
+    background: rgba(241, 196, 15, 0.15);
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(241, 196, 15, 0.5);
+}
+
+.podium-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 15px;
+    margin-top: 50px;
+    height: 250px;
+}
+
+.podium-step {
+    width: 100px;
+    background: linear-gradient(180deg, rgba(241, 196, 15, 0.2), rgba(0,0,0,0.5));
+    border: 1px solid rgba(241, 196, 15, 0.4);
+    border-radius: 10px 10px 0 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 15px;
+    font-family: 'Orbitron';
+}
+
+.step-1 { height: 180px; border-color: #f1c40f; box-shadow: 0 0 20px rgba(241, 196, 15, 0.3); }
+.step-2 { height: 140px; border-color: #bdc3c7; }
+.step-3 { height: 110px; border-color: #e67e22; }
+
+.podium-rank { font-size: 2rem; font-weight: 900; margin-bottom: 5px; }
+.step-1 .podium-rank { color: #f1c40f; }
+.step-2 .podium-rank { color: #bdc3c7; }
+.step-3 .podium-rank { color: #e67e22; }
+
+.podium-name {
+    font-size: 0.7rem;
+    color: white;
+    padding: 0 5px;
+    word-break: break-all;
+    text-transform: uppercase;
+}
+
+.medal-icon {
+    position: absolute;
+    top: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 25px;
+}
+
+.step-1 { 
+    height: 200px; /* Plus haut que les autres */
+    border: 2px solid #f1c40f; 
+    box-shadow: 0 0 30px rgba(241, 196, 15, 0.4);
+    z-index: 2; /* Passe devant les autres */
+}
+
+.step-1::after {
+    content: "CHAMPION";
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.6rem;
+    color: #f1c40f;
+    letter-spacing: 2px;
+}
+
+.podium-name {
+    font-family: 'Orbitron';
+    font-size: 0.8rem;
+    margin-top: 10px;
+    text-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
