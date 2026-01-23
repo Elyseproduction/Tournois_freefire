@@ -418,3 +418,205 @@ input, select {
     margin-top: 10px;
     text-shadow: 0 0 10px rgba(255,255,255,0.2);
 }
+
+/* Fenêtre de chat */
+.chat-window {
+    flex: 1;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    padding: 15px;
+    margin: 15px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: 1px solid rgba(241, 196, 15, 0.1);
+}
+
+/* Bulles de message */
+.msg-wrapper { display: flex; flex-direction: column; max-width: 85%; }
+.msg-me { align-self: flex-end; }
+.msg-them { align-self: flex-start; }
+
+.bubble {
+    padding: 10px 14px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    position: relative;
+    line-height: 1.4;
+}
+
+.msg-me .bubble {
+    background: linear-gradient(135deg, #f1c40f, #d4ac0d);
+    color: black;
+    border-bottom-right-radius: 2px;
+}
+
+.msg-them .bubble {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-bottom-left-radius: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chat-meta { font-size: 0.6rem; margin-bottom: 4px; color: #888; }
+.msg-me .chat-meta { text-align: right; color: #f1c40f; }
+
+/* Zone d'envoi */
+.chat-input-area { display: flex; gap: 8px; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 50px; border: 1px solid rgba(241,196,15,0.2); }
+.chat-input-area input { border: none !important; background: transparent !important; margin: 0 !important; padding-left: 15px !important; }
+.btn-send-chat { background: #f1c40f; border: none; width: 40px; height: 40px; border-radius: 50%; color: black; cursor: pointer; font-weight: bold; flex-shrink: 0; }
+
+/* --- ADAPTATION ANDROID / MOBILE --- */
+@media (max-width: 768px) {
+    .pro-navbar {
+        padding: 0 15px;
+        height: 65px;
+    }
+
+    .nav-links {
+        display: none; /* Cache le menu texte pour gagner de la place */
+    }
+
+    .selector-card {
+        width: 95%;
+        padding: 20px 15px;
+        margin-top: 10px;
+    }
+
+    h1, .gradient-text {
+        font-size: 1.2rem !important;
+    }
+
+    /* Arbre de combat sur Mobile */
+    .bracket-scroll {
+        padding-bottom: 20px;
+        -webkit-overflow-scrolling: touch; /* Défilement fluide sur Android/iOS */
+    }
+
+    .bracket-container {
+        gap: 25px;
+        padding: 10px;
+    }
+
+    .bracket-match {
+        width: 140px; /* Plus petit pour mobile */
+    }
+
+    .bracket-team {
+        font-size: 0.65rem;
+        padding: 12px 8px; /* Zone de clic plus large pour les doigts */
+    }
+
+    /* Podium sur Mobile */
+    .podium-container {
+        height: 200px;
+        gap: 8px;
+    }
+
+    .podium-step {
+        width: 85px;
+    }
+
+    /* Chat sur Mobile */
+    #card-community {
+        height: 90vh;
+        max-height: none;
+    }
+
+    .bubble {
+        font-size: 0.8rem;
+        max-width: 90%;
+    }
+}
+
+/* Amélioration des inputs pour Android */
+input, select, button {
+    font-size: 16px !important; /* Évite le zoom automatique d'Android sur les inputs */
+    height: 45px;
+}
+
+.consolation-round {
+    margin-left: 50px;
+    border-left: 1px dashed rgba(241, 196, 15, 0.3);
+    padding-left: 20px;
+}
+
+.third-place-match {
+    border-color: #e67e22 !important; /* Couleur Bronze/Orange */
+}
+
+.third-place-match::after {
+    display: none; /* Pas de ligne vers un prochain match */
+}
+
+.bracket-scroll {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap; /* Empêche les rounds de passer à la ligne */
+    padding: 20px 0;
+}
+
+.bracket-container {
+    display: inline-flex; /* Garde les rounds côte à côte */
+    gap: 40px;
+    align-items: center;
+}
+
+.consolation-box {
+    border-left: 2px dashed #e67e22;
+    padding-left: 20px;
+    margin-left: 20px;
+    background: rgba(230, 126, 34, 0.05);
+}
+
+/* Ajout d'une animation pour le vainqueur sur Android */
+.step-1 {
+    background: linear-gradient(180deg, rgba(241, 196, 15, 0.4), transparent);
+    animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+    from { box-shadow: 0 0 10px #f1c40f55; }
+    to { box-shadow: 0 0 30px #f1c40f99; }
+}
+
+/* --- NOUVEAUX STYLES ANDROID --- */
+.tourney-tabs {
+    display: flex; gap: 5px; margin-bottom: 15px; background: rgba(0,0,0,0.3);
+    padding: 5px; border-radius: 10px;
+}
+.tab-btn {
+    flex: 1; padding: 8px 5px; font-size: 0.65rem; border: none; background: transparent;
+    color: #888; font-family: 'Orbitron'; cursor: pointer; border-radius: 5px;
+}
+.tab-btn.active { background: #f1c40f; color: black; }
+
+.chat-card-mobile {
+    width: 95% !important; height: 90vh !important; display: flex; flex-direction: column;
+}
+.tab-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+
+/* Correction Arbre Mobile */
+.bracket-scroll { overflow-x: auto; white-space: nowrap; padding: 10px 0; cursor: grab; }
+.bracket-container { display: inline-flex; gap: 30px; align-items: center; }
+
+/* Chat Bubbles */
+.chat-window { flex: 1; background: rgba(0,0,0,0.4); border-radius: 10px; padding: 10px; margin-bottom: 10px; overflow-y: auto; }
+.msg-me { align-self: flex-end; background: #f1c40f; color: black; border-radius: 10px 10px 0 10px; padding: 8px; margin: 5px 0; max-width: 85%; }
+.msg-them { align-self: flex-start; background: rgba(255,255,255,0.1); color: white; border-radius: 10px 10px 10px 0; padding: 8px; margin: 5px 0; max-width: 85%; }
+
+/* Empêche le chat de disparaître sous le clavier */
+@media (max-height: 500px) {
+    .chat-card-mobile { height: 95vh !important; top: 2vh !important; }
+    .tourney-tabs { display: none; } /* Cache les onglets quand on tape pour gagner de l'espace */
+}
+
+.chat-window {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 20px; /* Espace pour le scroll */
+}
